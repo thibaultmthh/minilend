@@ -12,11 +12,7 @@ export default function ConnectButton() {
   const { connect } = useConnect();
 
   useEffect(() => {
-    if (
-      window.ethereum &&
-      // @ts-expect-error -- isMiniPay is not a standard property of window.ethereum
-      window.ethereum.isMiniPay
-    ) {
+    if (window.ethereum && window.ethereum.isMiniPay) {
       // User is using MiniPay so hide connect wallet button.
       setHideConnectBtn(true);
 

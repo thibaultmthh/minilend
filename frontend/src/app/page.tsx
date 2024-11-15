@@ -17,7 +17,7 @@ export default function Home() {
       </nav>
 
       {/* Main Content */}
-      <div className="pt-20 px-4 max-w-7xl mx-auto">
+      <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
         {/* Hero section */}
         <div className="space-y-2 mb-8">
           <h2 className="text-2xl md:text-3xl font-medium text-white/90">
@@ -97,6 +97,28 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 z-50">
+        <div className="grid grid-cols-4 h-16">
+          {[
+            { icon: "🏠", label: "Home", active: true },
+            { icon: "💰", label: "Deposit", active: false },
+            { icon: "🏆", label: "Prizes", active: false },
+            { icon: "👤", label: "Profile", active: false },
+          ].map((item) => (
+            <button
+              key={item.label}
+              className={`flex flex-col items-center justify-center space-y-1 ${
+                item.active ? "text-blue-400" : "text-white/60"
+              }`}
+            >
+              <span className="text-xl">{item.icon}</span>
+              <span className="text-[10px]">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </main>
   );
 }
