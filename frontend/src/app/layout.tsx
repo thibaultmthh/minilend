@@ -33,7 +33,7 @@ export default async function RootLayout({
           </nav>
 
           {/* Main Content */}
-          <main className="min-h-screen bg-black text-white pt-20 pb-24">{children}</main>
+          <main className="min-h-screen bg-black text-white pt-8 pb-24">{children}</main>
 
           {/* Bottom Navigation Bar */}
           <NavBar />
