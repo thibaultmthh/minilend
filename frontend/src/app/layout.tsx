@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import dynamic from "next/dynamic";
 
-const DynamicProvider = dynamic(() => import("@/components/DynamicProvider"), {
+const DynamicProvider = dynamic(() => import("../components/DynamicProvider"), {
   ssr: false,
 });
 
