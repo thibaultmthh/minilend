@@ -1,6 +1,13 @@
+"use client";
+
 import ConnectButton from "@/components/ConnectButton";
+import { useAccount } from "wagmi";
 
 export default function Home() {
+  const account = useAccount();
+
+  console.log(account);
+
   return (
     <main className="min-h-screen p-4 sm:p-8 bg-gray-50">
       {/* Header */}
@@ -8,7 +15,9 @@ export default function Home() {
         <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">MiniLend</h1>
         <ConnectButton />
       </div>
-
+      Enable on : {account.chain?.name}
+      <br />
+      Address : {account.address}
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <div className="bg-white p-4 rounded-lg shadow">
@@ -24,7 +33,6 @@ export default function Home() {
           <p className="text-2xl font-bold">$344,444</p>
         </div>
       </div>
-
       {/* Markets */}
       <div className="bg-white rounded-lg shadow p-4 sm:p-6">
         <h2 className="text-lg sm:text-xl font-bold mb-4">Markets</h2>

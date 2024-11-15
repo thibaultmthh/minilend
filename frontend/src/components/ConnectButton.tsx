@@ -22,16 +22,9 @@ export default function ConnectButton() {
 
       connect({ connector: injected({ target: "metaMask" }) });
     }
-  }, []);
-
-  console.log(hideConnectBtn);
+  }, [connect]);
 
   // const client = createWalletClient();
 
-  return (
-    <div>
-      {!hideConnectBtn && <DynamicWidget />}
-      {hideConnectBtn && <div>Hide</div>}
-    </div>
-  );
+  return <div>{!hideConnectBtn && <DynamicWidget />}</div>;
 }
