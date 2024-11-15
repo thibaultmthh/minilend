@@ -6,10 +6,13 @@ import { useState } from "react";
 import { useConnect } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+// import { InjectedConnector } from "wagmi/connectors/injected";
 
 export default function ConnectButton() {
   const [hideConnectBtn, setHideConnectBtn] = useState(false);
-  const { connect } = useConnect();
+  const { connect } = useConnect({
+    // connector: new InjectedConnector(),
+  });
 
   useEffect(() => {
     if (
@@ -22,7 +25,7 @@ export default function ConnectButton() {
 
       connect({ connector: injected({ target: "metaMask" }) });
     }
-  }, [connect]);
+  }, [connect, window.ethereum]);
 
   // const client = createWalletClient();
 
