@@ -1,10 +1,10 @@
 "use client";
 
-import { useAccount } from "wagmi";
+// import { useAccount } from "wagmi";
 import ConnectButton from "../components/ConnectButton";
 
 export default function Home() {
-  const account = useAccount();
+  // const account = useAccount();
 
   return (
     <main className="min-h-screen bg-black text-white">
