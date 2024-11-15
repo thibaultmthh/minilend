@@ -9,6 +9,8 @@ import { celo, celoAlfajores, flowMainnet, flowTestnet } from "viem/chains";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import { apolloClientClient } from "../config/apolloClients";
+import { ApolloProvider } from "@apollo/client";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +39,7 @@ const config = createConfig({
   connectors,
 });
 
-export default function DynamicProvider({ children }: { children: React.ReactNode }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <DynamicContextProvider
       settings={{
@@ -48,7 +50,9 @@ export default function DynamicProvider({ children }: { children: React.ReactNod
     >
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <DynamicWagmiConnector>{children}</DynamicWagmiConnector>
+          <DynamicWagmiConnector>
+            <ApolloProvider client={apolloClientClient}>{children}</ApolloProvider>
+          </DynamicWagmiConnector>
         </QueryClientProvider>
       </WagmiProvider>
     </DynamicContextProvider>

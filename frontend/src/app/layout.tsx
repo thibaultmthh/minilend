@@ -1,7 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
 import ConnectButton from "../components/ConnectButton";
-import DynamicProvider from "../components/DynamicProvider";
+import Providers from "../components/Providers";
 import NavBar from "../components/NavBar";
 
 const geistSans = localFont({
@@ -23,7 +23,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <DynamicProvider>
+        <Providers>
           {/* Top Navigation Bar */}
           <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-lg border-b border-white/10 z-50">
             <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
@@ -33,11 +33,11 @@ export default async function RootLayout({
           </nav>
 
           {/* Main Content */}
-          <main className="min-h-screen bg-black text-white pt-8 pb-24">{children}</main>
+          <main className="min-h-screen bg-black text-white pt-8 pb-12">{children}</main>
 
           {/* Bottom Navigation Bar */}
           <NavBar />
-        </DynamicProvider>
+        </Providers>
       </body>
     </html>
   );
