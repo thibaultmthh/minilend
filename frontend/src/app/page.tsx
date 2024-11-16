@@ -1,52 +1,34 @@
 "use client";
-import { useQuery } from "@apollo/client";
-import { gql } from "../__generated__";
+// import { useQuery } from "@apollo/client";
+// import { gql } from "../__generated__";
 // import { useAccount } from "wagmi";
 import ConnectButton from "../components/ConnectButton";
 import { ERC20_STABLE_DECIMALS } from "../utils/constantes";
+import { useWaves } from "../hooks/useWaves";
+import { nFormatter } from "../utils/utils";
+import { bigIntToFormattedString } from "../utils/bigintUtils";
+import useMyDeposit from "../hooks/useMyDeposit";
+import Link from "next/link";
 
-const STATS_QUERY = gql(`query GetStats{
-    protocolMetrics(id: "protocolMetrics") {
-      id
-      totalStaked
-      totalRewardsGiven
-      totalUsers
+// const STATS_QUERY = gql(`query GetStats{
+//     protocolMetrics(id: "protocolMetrics") {
+//       id
+//       totalStaked
+//       totalRewardsGiven
+//       totalUsers
 
-    }
-}`);
-
-const WAVES_QUERY = gql(`query GetWaves {
-    waves {
-      id
-      rewardsDistributed
-      randomSeed
-      totalReward
-      totalStake
-      stakes {
-        user {
-          id
-          totalStake
-          totalReward
-        }
-        id
-        amount
-      }
-      winners {
-        id
-        user {
-          id
-        }
-        odds
-      }
-    }
-}`);
+//     }
+// }`);
 
 export default function Home() {
-  const { data: stats } = useQuery(STATS_QUERY);
-  const { data: waves } = useQuery(WAVES_QUERY);
-  console.log(stats);
+  // const { data: stats } = useQuery(STATS_QUERY);
+  const { data: waves } = useWaves();
+  const { stackedBalance } = useMyDeposit();
 
+  const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
   // const account = useAccount();
+
+  console.log({ totalStaked, waves });
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -75,20 +57,29 @@ export default function Home() {
           {/* Hero Stats */}
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-950 to-indigo-950 p-6">
             <div className="absolute inset-0 bg-grid-white/[0.02]" />
-            <h2 className="text-3xl font-bold mb-6">${stats?.protocolMetrics?.totalStaked}</h2>
+            <h2 className="text-3xl font-bold mb-6">
+              ${nFormatter(Number(bigIntToFormattedString(totalStaked || 0n, ERC20_STABLE_DECIMALS)))}
+            </h2>
             <div className="flex justify-between items-end">
               <div>
                 <p className="text-sm text-white/60">Total Pool Size</p>
                 <p className="text-lg font-medium">4.2% APY</p>
               </div>
-              <button className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium">Deposit</button>
+              <Link href="/deposit" className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium">
+                Deposit
+              </Link>
             </div>
           </div>
 
           {/* User Stats Cards */}
           <div className="grid grid-cols-2 gap-4">
             {[
-              { label: "Your Deposit", value: "0.0 ETH", color: "blue" },
+              {
+                label: "Your Deposit",
+                value:
+                  nFormatter(Number(bigIntToFormattedString(stackedBalance || 0n, ERC20_STABLE_DECIMALS))) + " STABLE",
+                color: "blue",
+              },
               { label: "Win Chance", value: "0%", color: "indigo" },
             ].map((stat) => (
               <div key={stat.label} className="bg-white/5 rounded-2xl p-4 border border-white/10">
@@ -123,11 +114,13 @@ export default function Home() {
               {[
                 { date: "MAR 15", address: "0x1234...5678", amount: "12.5 ETH" },
                 { date: "MAR 08", address: "0x8765...4321", amount: "10.2 ETH" },
-                ...(waves?.waves?.map((wave) => ({
-                  date: new Date(wave.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-                  address: wave.winners[0].user.id,
-                  amount: Number(wave.totalReward) / 10 ** Number(ERC20_STABLE_DECIMALS),
-                })) || []),
+                ...(waves?.waves
+                  ?.filter((w) => w.rewardsDistributed)
+                  .map((wave) => ({
+                    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                    address: wave.winners[0]?.user?.id,
+                    amount: Number(wave.totalReward) / 10 ** Number(ERC20_STABLE_DECIMALS),
+                  })) || []),
               ].map((winner, idx) => (
                 <div
                   key={idx}

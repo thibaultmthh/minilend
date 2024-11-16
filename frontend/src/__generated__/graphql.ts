@@ -750,16 +750,10 @@ export enum _SubgraphErrorPolicy_ {
   Deny = 'deny'
 }
 
-export type GetStatsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetStatsQuery = { __typename?: 'Query', protocolMetrics?: { __typename?: 'ProtocolMetrics', id: string, totalStaked: any, totalRewardsGiven: any, totalUsers: number } | null };
-
 export type GetWavesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetWavesQuery = { __typename?: 'Query', waves: Array<{ __typename?: 'Wave', id: string, rewardsDistributed: boolean, randomSeed?: any | null, totalReward: any, totalStake: any, stakes: Array<{ __typename?: 'Stake', id: string, amount: any, user: { __typename?: 'User', id: string, totalStake: any, totalReward: any } }>, winners: Array<{ __typename?: 'Winner', id: string, odds: string, user: { __typename?: 'User', id: string } }> }> };
 
 
-export const GetStatsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"protocolMetrics"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"StringValue","value":"protocolMetrics","block":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"totalStaked"}},{"kind":"Field","name":{"kind":"Name","value":"totalRewardsGiven"}},{"kind":"Field","name":{"kind":"Name","value":"totalUsers"}}]}}]}}]} as unknown as DocumentNode<GetStatsQuery, GetStatsQueryVariables>;
 export const GetWavesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetWaves"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"waves"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"rewardsDistributed"}},{"kind":"Field","name":{"kind":"Name","value":"randomSeed"}},{"kind":"Field","name":{"kind":"Name","value":"totalReward"}},{"kind":"Field","name":{"kind":"Name","value":"totalStake"}},{"kind":"Field","name":{"kind":"Name","value":"stakes"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"totalStake"}},{"kind":"Field","name":{"kind":"Name","value":"totalReward"}}]}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}}]}},{"kind":"Field","name":{"kind":"Name","value":"winners"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"odds"}}]}}]}}]}}]} as unknown as DocumentNode<GetWavesQuery, GetWavesQueryVariables>;

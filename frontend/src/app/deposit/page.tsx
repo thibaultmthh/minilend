@@ -3,26 +3,25 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { writeContract } from "wagmi/actions";
-import { useSearchParams } from "next/navigation";
 
 import useSendTxWithToasts from "../../hooks/useSendTxWithToasts";
 import { ERC20_ABI } from "../../utils/ERC20_ABI";
 import { ERC20_STABLE_CONTRACT, ERC20_STABLE_DECIMALS, STABLE_STAKING_CONTRACT } from "../../utils/constantes";
-import { Adresse } from "../../utils/type";
 import { wagmiConfig } from "../../config/wagmiConfig";
 import { STABLE_STAKING_ABI } from "../../utils/STABLE_STAKING_ABI";
 import { nFormatter } from "../../utils/utils";
 import { useErc20TokenInfo } from "../../hooks/useErc20TokenInfo";
 import { bigIntToFormattedString, formattedStringToBigInt } from "../../utils/bigintUtils";
 
+import useMyDeposit from "../../hooks/useMyDeposit";
+
 export default function DepositPage() {
   const [depositAmount, setDepositAmount] = useState(0n);
   const [isLoading, setIsLoading] = useState(false);
   const { address: userAddress } = useAccount();
   const { sendTxWithToasts } = useSendTxWithToasts({ onSuccess: () => refetchAll() });
-  const searchParams = useSearchParams();
 
-  // Contract reads
+  const { stackedBalance, refetch: refetchWaves } = useMyDeposit();
   const {
     balance: stableBalance,
     allowance: stableAllowance,
@@ -33,6 +32,7 @@ export default function DepositPage() {
   const refetchAll = () => {
     refetchBalance();
     refetchAllowance();
+    refetchWaves();
   };
 
   const handleDeposit = async () => {
@@ -65,7 +65,7 @@ export default function DepositPage() {
           address: STABLE_STAKING_CONTRACT,
           abi: STABLE_STAKING_ABI,
           functionName: "stakeUSDC",
-          args: [depositAmount, (searchParams.get("ref") || "0x0000000000000000000000000000000000000000") as Adresse],
+          args: [depositAmount],
         })
       );
 
@@ -93,9 +93,26 @@ export default function DepositPage() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-white/60">Currently Staked</span>
-            <span className="text-xl font-medium">2.5 ETH</span>
+            <span className="text-xl font-medium">
+              {nFormatter(Number(bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)))} STABLE
+            </span>
           </div>
-          <button className="w-full bg-red-500/20 text-red-400 py-4 rounded-xl font-medium">Withdraw ETH</button>
+          <button
+            className="w-full bg-red-500/20 text-red-400 py-4 rounded-xl font-medium"
+            onClick={() => {
+              if (!userAddress) return alert("Please connect your wallet");
+
+              sendTxWithToasts(
+                writeContract(wagmiConfig, {
+                  address: STABLE_STAKING_CONTRACT,
+                  abi: STABLE_STAKING_ABI,
+                  functionName: "withdrawStakeAndRewards",
+                })
+              ).then(() => refetchAll());
+            }}
+          >
+            Withdraw STABLE
+          </button>
         </div>
       </div>
 
