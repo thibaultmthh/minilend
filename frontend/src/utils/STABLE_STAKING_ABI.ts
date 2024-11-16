@@ -138,6 +138,16 @@ export const STABLE_STAKING_ABI = [
     type: "function",
   },
   {
+    inputs: [
+      { internalType: "address", name: "beneficiary", type: "address" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+    ],
+    name: "stakeUSDCOnBehalf",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "totalStake",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
