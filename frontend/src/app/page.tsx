@@ -2,7 +2,6 @@
 // import { useQuery } from "@apollo/client";
 // import { gql } from "../__generated__";
 // import { useAccount } from "wagmi";
-import ConnectButton from "../components/ConnectButton";
 import { ERC20_STABLE_DECIMALS } from "../utils/constantes";
 import { useWaves } from "../hooks/useWaves";
 import { nFormatter } from "../utils/utils";

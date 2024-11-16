@@ -16,20 +16,7 @@ export default function ConnectButton() {
       // User is using MiniPay so hide connect wallet button.
       setHideConnectBtn(true);
       function connectWallet() {
-        connect(
-          { connector: injected({ target: "metaMask" }) },
-          {
-            onError(error, variables, context) {
-              alert(error.message);
-            },
-            onSuccess(data, variables, context) {
-              alert("Connected");
-            },
-            onSettled(data, variables, context) {
-              alert("Settled");
-            },
-          }
-        );
+        connect({ connector: injected({ target: "metaMask" }) });
       }
       setTimeout(connectWallet, 1000);
     }
