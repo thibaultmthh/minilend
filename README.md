@@ -32,7 +32,7 @@ Billions of people face these hard challenges and Tontine will enables them to e
 
 The user can stake cUSD into a staking pool contract that will then deposit it into a lending protocol (a fork of aave). The Pool will accrue interest until a draw has been made by an offchain operator (operated by us for now) and a random staker of the pool will be chosen to receive the entire reward (it is a weekly draw). 
 
-At any point the user can unstake and use his cUSD to spend it, which means that the user never really "loses money" while having potential access to rewards of the entire pool, which incentives the user to stake (and save) his money with the app
+After the draw, the reward is compounded on the user's winner balance on the pool. At any point the user can unstake/withdraw his balance and use his cUSD to spend it, which means that the user never really "loses money" while having potential access to rewards of the entire pool, which incentives the user to stake (and save) his money with the app
 
 We also created a system that allows recurring (monthly for now) deposit into the pool for the user. This is done throught a backend that is allowed to send metaTransactions for the wallet.
 
