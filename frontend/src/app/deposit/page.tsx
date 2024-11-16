@@ -69,6 +69,7 @@ export default function DepositPage() {
             abi: ERC20_ABI,
             functionName: "approve",
             args: [STABLE_STAKING_CONTRACT, depositAmount],
+            feeCurrency: ERC20_STABLE_CONTRACT,
           })
         );
         await refetchAllowance();
@@ -81,6 +82,7 @@ export default function DepositPage() {
           abi: STABLE_STAKING_ABI,
           functionName: "stakeUSDC",
           args: [depositAmount],
+          feeCurrency: ERC20_STABLE_CONTRACT,
         })
       );
 
@@ -98,7 +100,6 @@ export default function DepositPage() {
     setIsLoadingDCA(true);
 
     try {
-      // Check and handle allowance for the total DCA amount
       const totalDCAAmount = dcaAmount * BigInt(dcaMonths);
 
       if ((stableAllowance || 0n) < totalDCAAmount) {
@@ -108,6 +109,7 @@ export default function DepositPage() {
             abi: ERC20_ABI,
             functionName: "approve",
             args: [STABLE_STAKING_CONTRACT, totalDCAAmount],
+            feeCurrency: ERC20_STABLE_CONTRACT,
           })
         );
         await refetchAllowance();
@@ -176,6 +178,7 @@ export default function DepositPage() {
                   address: STABLE_STAKING_CONTRACT,
                   abi: STABLE_STAKING_ABI,
                   functionName: "withdrawStakeAndRewards",
+                  feeCurrency: ERC20_STABLE_CONTRACT,
                 })
               ).then(() => refetchAll());
             }}

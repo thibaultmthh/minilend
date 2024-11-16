@@ -12,7 +12,9 @@ export interface DCASubscription {
 export const dcaService = {
   async subscribe(walletAddress: string, dayOfMonth: number, amount: string): Promise<DCASubscription> {
     const message = "Sign this message to subscribe to DCA orders.";
-    const signature = await signMessage(wagmiConfig, { message });
+    const signature = await signMessage(wagmiConfig, {
+      message,
+    });
 
     const response = await fetch(`${BACKEND_URL}/subscribe`, {
       method: "POST",
@@ -37,7 +39,9 @@ export const dcaService = {
 
   async unsubscribe(walletAddress: string): Promise<void> {
     const message = "Sign this message to unsubscribe from DCA orders.";
-    const signature = await signMessage(wagmiConfig, { message });
+    const signature = await signMessage(wagmiConfig, {
+      message,
+    });
 
     const response = await fetch(`${BACKEND_URL}/unsubscribe`, {
       method: "POST",
