@@ -6,12 +6,12 @@ import { useConnect } from "wagmi";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 
 import { injected } from "@wagmi/connectors";
-import { isMiniPay } from "../utils/isMiniPay";
+import { IS_MINI_PAY } from "../utils/constantes";
 export default function ConnectButton() {
   const { connect } = useConnect();
 
   useEffect(() => {
-    if (isMiniPay()) {
+    if (IS_MINI_PAY) {
       // User is using MiniPay so hide connect wallet button.
 
       function connectWallet() {
@@ -30,5 +30,5 @@ export default function ConnectButton() {
 
   // const client = createWalletClient();
 
-  return <div>{!isMiniPay() && <DynamicWidget />}</div>;
+  return <div>{!IS_MINI_PAY && <DynamicWidget />}</div>;
 }

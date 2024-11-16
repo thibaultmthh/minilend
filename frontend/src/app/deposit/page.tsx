@@ -201,6 +201,7 @@ export default function DepositPage() {
             className="w-full bg-red-500/20 text-red-400 py-4 rounded-xl font-medium"
             onClick={() => {
               if (!userAddress) return alert("Please connect your wallet");
+              if (stackedBalance <= 0n) return alert("No funds to withdraw");
 
               sendTxWithToasts(
                 writeContract(wagmiConfig, {
