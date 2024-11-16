@@ -1,0 +1,8 @@
+node_modules
+generated
+tests/.bin
+.latest.json
+.DS_STORE
+build
+data
+package-lock.json
