@@ -1,13 +1,14 @@
-const express = require('express');
+import express, { Application } from 'express';
+import { Request, Response } from 'express';
+import indexRoutes from './routes/index';
 
-const app = express();
+const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
 
 // Routes
-const indexRoutes = require('./routes/index');
 app.use('/', indexRoutes);
 
 // Start the server
