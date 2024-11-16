@@ -1,0 +1,41 @@
+type ProtocolMetrics @entity {
+  id: ID! # A static ID, as there will only be one instance of ProtocolMetrics.
+  totalStaked: BigInt!
+  totalRewardsGiven: BigInt!
+  totalUsers: Int!
+}
+
+type User @entity {
+  id: ID!
+  totalStake: BigInt!
+  totalReward: BigInt!
+  stakes: [Stake!] @derivedFrom(field: "user")
+  winners: [Winner!] @derivedFrom(field: "user")
+  referredUsers: [User!] @derivedFrom(field: "referrer") # Derived field to link referred users
+  referrer: User # Optional field to link the referrer
+}
+
+type Stake @entity {
+  id: ID!
+  user: User!
+  amount: BigInt!
+  wave: Wave!
+}
+
+type Wave @entity {
+  id: ID!
+  totalStake: BigInt!
+  totalReward: BigInt!
+  randomSeed: BigInt
+  rewardsDistributed: Boolean!
+  stakes: [Stake!]! @derivedFrom(field: "wave")
+  winners: [Winner!]! @derivedFrom(field: "wave")
+}
+
+type Winner @entity {
+  id: ID!
+  user: User!
+  wave: Wave!
+  reward: BigInt!
+  odds: String! # New field to store the odds of winning for this user at the time of reward distribution.
+}
