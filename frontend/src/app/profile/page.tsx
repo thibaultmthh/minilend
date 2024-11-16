@@ -1,13 +1,17 @@
 "use client";
 
+import { useAccount } from "wagmi";
+import { formatEthAddress } from "../../utils/utils";
+
 export default function ProfilePage() {
+  const { address: userAddress } = useAccount();
   return (
     <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
       {/* Profile Header */}
       <div className="flex items-center space-x-4 mb-8">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500" />
         <div>
-          <h2 className="text-2xl font-medium text-white/90">0x1234...5678</h2>
+          <h2 className="text-2xl font-medium text-white/90">{formatEthAddress(userAddress)}</h2>
           <p className="text-white/60">Joined March 2024</p>
         </div>
       </div>
