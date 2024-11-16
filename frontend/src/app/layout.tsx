@@ -34,7 +34,7 @@ export default function RootLayout({
               <ConnectButton />
             </div>
           </nav>
-          <main className="min-h-screen bg-black text-white pt-8 pb-12">{children}</main>
+          <main className="min-h-screen bg-black text-white pt-8 pb-8">{children}</main>
           <NavBar />
         </Providers>
       </body>

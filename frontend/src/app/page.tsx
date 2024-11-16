@@ -19,13 +19,32 @@ import Link from "next/link";
 //     }
 // }`);
 
+import { useEffect, useState } from "react";
+import { getNextSaturdayDrawTime, getTimeRemaining } from "../utils/dateUtils";
+
 export default function Home() {
   // const { data: stats } = useQuery(STATS_QUERY);
   const { data: waves } = useWaves();
   const { stackedBalance } = useMyDeposit();
+  const [timeRemaining, setTimeRemaining] = useState({
+    days: "00",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
 
   const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
   // const account = useAccount();
+
+  useEffect(() => {
+    const nextDraw = getNextSaturdayDrawTime();
+
+    const timer = setInterval(() => {
+      setTimeRemaining(getTimeRemaining(nextDraw));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   console.log({ totalStaked, waves });
 
@@ -67,8 +86,7 @@ export default function Home() {
             {[
               {
                 label: "Your Deposit",
-                value:
-                  nFormatter(Number(bigIntToFormattedString(stackedBalance || 0n, ERC20_STABLE_DECIMALS))) + " STABLE",
+                value: nFormatter(Number(bigIntToFormattedString(stackedBalance || 0n, ERC20_STABLE_DECIMALS))) + " $",
                 color: "blue",
               },
               { label: "Win Chance", value: "0%", color: "indigo" },
@@ -85,10 +103,10 @@ export default function Home() {
             <h3 className="text-sm text-white/60 mb-2">Next Draw In</h3>
             <div className="grid grid-cols-4 gap-2">
               {[
-                { value: "02", label: "DAYS" },
-                { value: "14", label: "HOURS" },
-                { value: "33", label: "MINS" },
-                { value: "45", label: "SECS" },
+                { value: timeRemaining.days, label: "DAYS" },
+                { value: timeRemaining.hours, label: "HOURS" },
+                { value: timeRemaining.minutes, label: "MINS" },
+                { value: timeRemaining.seconds, label: "SECS" },
               ].map((time) => (
                 <div key={time.label} className="text-center">
                   <p className="text-2xl font-bold">{time.value}</p>
@@ -102,54 +120,45 @@ export default function Home() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Recent Winners</h3>
             <div className="space-y-2">
-              {[
-                { date: "MAR 15", address: "0x1234...5678", amount: "12.5 ETH" },
-                { date: "MAR 08", address: "0x8765...4321", amount: "10.2 ETH" },
-                ...(waves?.waves
-                  ?.filter((w) => w.rewardsDistributed)
-                  .map((wave) => ({
-                    date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-                    address: wave.winners[0]?.user?.id,
-                    amount: Number(wave.totalReward) / 10 ** Number(ERC20_STABLE_DECIMALS),
-                  })) || []),
-              ].map((winner, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white/5 rounded-xl p-4 border border-white/10 flex justify-between items-center"
-                >
-                  <div>
-                    <p className="text-sm text-white/60">{winner.date}</p>
-                    <p className="font-mono text-sm">{winner.address}</p>
-                  </div>
-                  <p className="text-emerald-400 font-medium">{winner.amount}</p>
-                </div>
-              ))}
+              {waves?.waves
+                ?.sort((a, b) => Number(b.endedAt || Infinity) - Number(a.endedAt || Infinity))
+                .slice(0, 10)
+                .map((wave) => {
+                  const isCurrentWave = !wave.rewardsDistributed;
+                  const date = wave.endedAt ? new Date(Number(wave.endedAt) * 1000) : null;
+                  const formattedDate = date
+                    ? date
+                        .toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        })
+                        .toUpperCase()
+                    : "CURRENT WAVE";
+                  const rewardAmount = bigIntToFormattedString(BigInt(wave.totalReward), ERC20_STABLE_DECIMALS);
+
+                  return (
+                    <div
+                      key={wave.id}
+                      className="bg-white/5 rounded-xl p-4 border border-white/10 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="text-sm text-white/60">{formattedDate}</p>
+                        {isCurrentWave ? (
+                          <p className="text-sm text-blue-400">In Progress</p>
+                        ) : (
+                          <p className="font-mono text-sm">{wave.winners[0]?.user?.id}</p>
+                        )}
+                      </div>
+                      <p className={`font-medium blur-sm ${isCurrentWave ? "text-blue-400" : "text-emerald-400"}`}>
+                        {nFormatter(Number(rewardAmount))}$
+                      </p>
+                    </div>
+                  );
+                })}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 z-50">
-        <div className="grid grid-cols-4 h-16">
-          {[
-            { icon: "🏠", label: "Home", active: true },
-            { icon: "💰", label: "Deposit", active: false },
-            { icon: "🏆", label: "Prizes", active: false },
-            { icon: "👤", label: "Profile", active: false },
-          ].map((item) => (
-            <button
-              key={item.label}
-              className={`flex flex-col items-center justify-center space-y-1 ${
-                item.active ? "text-blue-400" : "text-white/60"
-              }`}
-            >
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-[10px]">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
     </main>
   );
 }

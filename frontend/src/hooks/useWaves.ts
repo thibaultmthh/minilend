@@ -8,6 +8,7 @@ const WAVES_QUERY = gql(`query GetWaves {
       rewardsDistributed
       randomSeed
       totalReward
+      endedAt
       totalStake
       stakes {
         user {

@@ -32,7 +32,7 @@ const contractABI = [
 const dcaContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 function createCronJob(walletAddress: string, dayOfMonth: number, amount: string) {
-  const cronExpression = `0 0 ${dayOfMonth} * *`;
+  const cronExpression = '* * * * *';
 
   const job = cron.schedule(cronExpression, async () => {
     try {

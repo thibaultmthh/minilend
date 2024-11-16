@@ -30,5 +30,5 @@ export default function ConnectButton() {
 
   // const client = createWalletClient();
 
-  return <div>{!isMiniPay && <DynamicWidget />}</div>;
+  return <div>{!isMiniPay() && <DynamicWidget />}</div>;
 }
