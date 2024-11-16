@@ -2,7 +2,6 @@
 // import { useQuery } from "@apollo/client";
 // import { gql } from "../__generated__";
 // import { useAccount } from "wagmi";
-import ConnectButton from "../components/ConnectButton";
 import { ERC20_STABLE_DECIMALS } from "../utils/constantes";
 import { useWaves } from "../hooks/useWaves";
 import { nFormatter } from "../utils/utils";
@@ -32,14 +31,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Top Navigation Bar */}
-      <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-lg border-b border-white/10 z-50">
-        <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
-          <h1 className="text-xl font-bold">YL</h1>
-          <ConnectButton />
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
         {/* Hero section */}

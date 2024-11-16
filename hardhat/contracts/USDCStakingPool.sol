@@ -127,7 +127,7 @@ contract USDCStakingPool {
         require(amount > 0, "Amount must be greater than 0");
         require(beneficiary != address(0), "Invalid beneficiary address");
         
-        require(usdc.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        require(usdc.transferFrom(beneficiary, address(this), amount), "Transfer failed");
         
         usdc.approve(address(lendingPlatform), amount);
         lendingPlatform.deposit(address(usdc), amount, address(this), 0);

@@ -11,7 +11,9 @@ export default function ProfilePage() {
       <div className="flex items-center space-x-4 mb-8">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500" />
         <div>
-          <h2 className="text-2xl font-medium text-white/90">{formatEthAddress(userAddress)}</h2>
+          <h2 className="text-2xl font-medium text-white/90">
+            {userAddress ? formatEthAddress(userAddress) : "not logged"}
+          </h2>
           <p className="text-white/60">Joined March 2024</p>
         </div>
       </div>
