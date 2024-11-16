@@ -153,3 +153,57 @@ type Winner @entity {
   blockNumber: BigInt!
   transactionHash: String!
 }
+
+# Hourly Timeseries Data
+type HourData @entity(timeseries: true) {
+  id: Int8!
+  timestamp: Timestamp!
+  hour: Int! # 0-23
+  # Deposit metrics
+  depositAmount: BigInt!
+  depositCount: Int!
+  uniqueDepositors: Int!
+
+  # Withdraw metrics
+  withdrawAmount: BigInt!
+  withdrawCount: Int!
+  uniqueWithdrawers: Int!
+
+  # Wave reference
+  waveId: String!
+}
+
+# Hourly Stats
+type HourlyStats @aggregation(intervals: ["hour"], source: "HourData") {
+  id: Int8!
+  timestamp: Timestamp!
+
+  # Deposit aggregations
+  hourlyDepositVolume: BigInt! @aggregate(fn: "sum", arg: "depositAmount")
+  hourlyDepositCount: Int! @aggregate(fn: "sum", arg: "depositCount")
+  uniqueDepositors: Int!
+    @aggregate(fn: "sum", arg: "uniqueDepositors", distinct: true)
+  averageDepositSize: BigInt! @aggregate(fn: "avg", arg: "depositAmount")
+
+  # Withdraw aggregations
+  hourlyWithdrawVolume: BigInt! @aggregate(fn: "sum", arg: "withdrawAmount")
+  hourlyWithdrawCount: Int! @aggregate(fn: "sum", arg: "withdrawCount")
+  uniqueWithdrawers: Int!
+    @aggregate(fn: "sum", arg: "uniqueWithdrawers", distinct: true)
+  averageWithdrawSize: BigInt! @aggregate(fn: "avg", arg: "withdrawAmount")
+}
+
+type _Schema_
+  @fulltext(
+    name: "userSearch"
+    language: en
+    algorithm: rank
+    include: [
+      {
+        entity: "User"
+        fields: [
+          { name: "id" } # Search by address
+        ]
+      }
+    ]
+  )

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -30,20 +31,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-900`}>
         <Providers>
-          <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-lg border-b border-white/10 z-50">
-            <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
-              <h1 className="text-xl font-bold text-white">Tontine</h1>
-              <ConnectButton />
-            </div>
-          </nav>
-          <main className="min-h-screen bg-black text-white pt-8 pb-8">
-            {children}
-          </main>
-          <NavBar />
+          <div className="hidden md:block fixed top-1/2 left-8 -translate-y-1/2 text-zinc-600 rotate-[-90deg]">
+            Mobile Version Only
+          </div>
+          <div className="hidden md:block fixed top-1/2 right-8 -translate-y-1/2 text-zinc-600 rotate-90">
+            Mobile Version Only
+          </div>
+          <div className="max-w-[430px] mx-auto relative min-h-screen bg-black">
+            <nav className="fixed top-0 w-full max-w-[430px] bg-black/80 backdrop-blur-lg border-b border-white/10 z-50">
+              <div className="flex justify-between items-center p-4">
+                <div className="flex items-center gap-2">
+                  <img src="/tontine-logo.png" alt="YL" className="w-6 h-6" />
+                  <h1 className="text-xl font-bold text-white">Tontine</h1>
+                </div>
+                <ConnectButton />
+              </div>
+            </nav>
+            <main className="min-h-screen bg-black text-white pt-8 pb-8">{children}</main>
+            <NavBar />
+          </div>
         </Providers>
       </body>
     </html>

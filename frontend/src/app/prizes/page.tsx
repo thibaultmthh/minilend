@@ -3,6 +3,9 @@
 export default function PrizesPage() {
   return (
     <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
+      <div className="mb-8 text-yellow-300/80 text-center text-sm border border-yellow-300/20 rounded-lg p-2">
+        🚧 Example Page - Rewards and missions shown are placeholders
+      </div>
       {/* Daily Rewards Section */}
       <div className="space-y-2 mb-8">
         <h2 className="text-2xl md:text-3xl font-medium text-white/90">Daily Rewards</h2>
@@ -24,7 +27,7 @@ export default function PrizesPage() {
           >
             <span className="text-xs md:text-sm text-white/60">Day {idx + 1}</span>
             <span className="text-lg md:text-xl mt-1">🎁</span>
-            <span className="text-xs md:text-sm font-medium mt-1">{idx === 6 ? "100 YL" : `${(idx + 1) * 10} YL`}</span>
+            <span className="text-xs md:text-sm font-medium mt-1">{idx === 6 ? "100 🎟️" : `${(idx + 1) * 10} 🎟️`}</span>
             {idx === 2 && <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-pulse" />}
           </div>
         ))}
@@ -42,25 +45,25 @@ export default function PrizesPage() {
           {
             icon: "🐦",
             title: "Follow on Twitter",
-            reward: "50 YL",
+            reward: "50 🎟️",
             status: "completed",
           },
           {
             icon: "❤️",
             title: "Like & Retweet our latest post",
-            reward: "100 YL",
+            reward: "100 🎟️",
             status: "active",
           },
           {
             icon: "👥",
             title: "Invite 3 friends",
-            reward: "200 YL",
+            reward: "200 🎟️",
             status: "active",
           },
           {
             icon: "💰",
             title: "Make your first deposit",
-            reward: "500 YL",
+            reward: "500 🎟️",
             status: "locked",
           },
         ].map((mission) => (

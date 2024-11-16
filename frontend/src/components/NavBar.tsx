@@ -12,7 +12,7 @@ const navItems = [
 export default function NavBar() {
   const pathname = usePathname();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 z-50">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-black/80 backdrop-blur-lg border-t border-white/10 z-50">
       <div className="grid grid-cols-4 h-16">
         {navItems.map((item) => (
           <Link

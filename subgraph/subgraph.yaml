@@ -12,7 +12,7 @@ dataSources:
     name: USDCStaking
     network: celo
     source:
-      address: "0xd3C9afb7D775a99a349fC1dF34500248C5C3bE65"
+      address: "0xa5c063a13483155054F66bA6aD6e4aAd698F942A"
       abi: USDCStaking
       startBlock: 28804927
     mapping:

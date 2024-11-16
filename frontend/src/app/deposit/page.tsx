@@ -10,6 +10,7 @@ import {
   ERC20_STABLE_CONTRACT,
   ERC20_STABLE_DECIMALS,
   STABLE_STAKING_CONTRACT,
+  IS_MINI_PAY,
 } from "../../utils/constantes";
 import { wagmiConfig } from "../../config/wagmiConfig";
 import { STABLE_STAKING_ABI } from "../../utils/STABLE_STAKING_ABI";
@@ -61,9 +62,14 @@ export default function DepositPage() {
   }, [userAddress]);
 
   const refetchAll = () => {
-    refetchBalance();
     refetchAllowance();
     refetchWaves();
+    setTimeout(() => {
+      refetchBalance();
+    }, 400);
+    setTimeout(() => {
+      refetchBalance();
+    }, 1400);
   };
 
   const handleDeposit = async () => {
@@ -183,58 +189,41 @@ export default function DepositPage() {
         </p>
       </div>
 
-      {/* Staked Amount & Actions */}
-      <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-white/60">Your Current Deposit</span>
-            <span className="text-xl font-medium">
-              {nFormatter(
-                Number(
-                  bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)
-                )
-              )}{" "}
-              $
-            </span>
-          </div>
-          <button
-            className="w-full bg-red-500/20 text-red-400 py-4 rounded-xl font-medium"
-            onClick={() => {
-              if (!userAddress) return alert("Please connect your wallet");
-              if (stackedBalance <= 0n) return alert("No funds to withdraw");
-
-              sendTxWithToasts(
-                writeContract(wagmiConfig, {
-                  address: STABLE_STAKING_CONTRACT,
-                  abi: STABLE_STAKING_ABI,
-                  functionName: "withdrawStakeAndRewards",
-                  feeCurrency: ERC20_STABLE_CONTRACT,
-                })
-              ).then(() => refetchAll());
-            }}
-          >
-            Withdraw $
-          </button>
-        </div>
-      </div>
-
       {/* Deposit Card - Updated */}
       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-white/60">Amount</span>
-            <span className="text-sm text-white/60">
-              Balance:{" "}
-              {nFormatter(
-                Number(
+            <div>
+              <span className="text-sm text-white/60">
+                Balance:{" "}
+                {nFormatter(
+                  Number(
+                    bigIntToFormattedString(
+                      stableBalance || 0n,
+                      ERC20_STABLE_DECIMALS
+                    )
+                  )
+                )}{" "}
+                $
+              </span>
+              {IS_MINI_PAY &&
+                (Number(
                   bigIntToFormattedString(
                     stableBalance || 0n,
                     ERC20_STABLE_DECIMALS
                   )
-                )
-              )}{" "}
-              $
-            </span>
+                ) || 0) < 1 && (
+                  <a
+                    href="https://minipay.opera.com/add_cash"
+                    className="ml-2 text-sm text-blue-400 hover:text-blue-300"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Add funds
+                  </a>
+                )}
+            </div>
           </div>
 
           <div className="relative">
@@ -283,12 +272,54 @@ export default function DepositPage() {
         </div>
       </div>
 
+      {/* Staked Amount & Actions */}
+      <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-white/60">Your Current Deposit</span>
+            <span className="text-xl font-medium">
+              {nFormatter(
+                Number(
+                  bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)
+                )
+              )}{" "}
+              $
+            </span>
+          </div>
+          <button
+            disabled={!userAddress || stackedBalance <= 0n}
+            className="w-full bg-gray-500/20 text-gray-300 py-4 rounded-xl font-medium 
+              hover:bg-red-500/20 hover:text-red-400 transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-500/20 disabled:hover:text-gray-300"
+            onClick={() => {
+              if (!userAddress) return alert("Please connect your wallet");
+              if (stackedBalance <= 0n) return;
+
+              sendTxWithToasts(
+                writeContract(wagmiConfig, {
+                  address: STABLE_STAKING_CONTRACT,
+                  abi: STABLE_STAKING_ABI,
+                  functionName: "withdrawStakeAndRewards",
+                  feeCurrency: ERC20_STABLE_CONTRACT,
+                })
+              ).then(() => refetchAll());
+            }}
+          >
+            {!userAddress
+              ? "Connect Wallet"
+              : stackedBalance <= 0n
+              ? "No value to withdraw"
+              : "Withdraw $"}
+          </button>
+        </div>
+      </div>
+
       {/* DCA Settings Card */}
       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-medium text-white/90">
-              Set up Monthly DCA
+              Set up Automatic Recurring Deposit
             </h3>
             {currentDCA && (
               <Button
@@ -297,7 +328,7 @@ export default function DepositPage() {
                 isLoading={isLoadingDCA}
                 onClick={handleCancelDCA}
               >
-                Cancel DCA
+                Cancel Automatic Recurring Deposit
               </Button>
             )}
           </div>
@@ -305,8 +336,8 @@ export default function DepositPage() {
           {currentDCA ? (
             <div className="space-y-2">
               <p className="text-white/60">
-                Current DCA: ${currentDCA.amount} scheduled for day{" "}
-                {currentDCA.dayOfMonth} of each month
+                Current Deposit Strategie: ${currentDCA.amount} scheduled for
+                day {currentDCA.dayOfMonth} of each month
               </p>
             </div>
           ) : (
@@ -376,7 +407,7 @@ export default function DepositPage() {
                 isLoading={isLoadingDCA}
                 className="w-full"
               >
-                Setup Monthly DCA
+                Setup Automatic Recurring Deposit
               </Button>
             </>
           )}
@@ -384,7 +415,7 @@ export default function DepositPage() {
       </div>
 
       {/* Info Cards */}
-      <div className="grid gap-4">
+      {/* <div className="grid gap-4">
         {[
           { label: "Current APY", value: "4.2%" },
           { label: "Next Prize", value: "12.5 ETH" },
@@ -398,7 +429,7 @@ export default function DepositPage() {
             <span className="font-medium">{item.value}</span>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }
