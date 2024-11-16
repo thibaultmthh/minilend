@@ -1,5 +1,5 @@
 {
-  "name": "Raise",
+  "name": "Minilend",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",

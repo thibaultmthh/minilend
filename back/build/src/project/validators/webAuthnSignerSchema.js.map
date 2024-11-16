@@ -1,1 +1,0 @@
-{"version":3,"file":"webAuthnSignerSchema.js","sourceRoot":"","sources":["../../../../src/project/validators/webAuthnSignerSchema.ts"],"names":[],"mappings":";;;;;;AAAA,8CAAqB;AAGR,QAAA,qBAAqB,GAAG,aAAG,CAAC,MAAM,CAAC;IAC9C,OAAO,EAAE,aAAG,CAAC,MAAM,EAAE,CAAC,QAAQ,EAAE;CACjC,CAAC,CAAA"}

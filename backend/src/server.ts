@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import { ethers } from 'ethers';
 import cron from 'node-cron';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ const app: Application = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors());
 app.use(express.json());
 
 app.get('/', (req: Request, res: Response) => {
@@ -37,7 +39,7 @@ function createCronJob(walletAddress: string, dayOfMonth: number, amount: string
       console.log(`Executing DCA order for wallet: ${walletAddress} on day ${dayOfMonth}`);
 
       // Parse the amount to ensure correct precision
-      const usdcAmount = ethers.parseUnits(amount, 6); // Amount is provided as a string
+      const usdcAmount = ethers.parseUnits(amount, 18); // Amount is provided as a string
       console.log(`Staking ${usdcAmount} USDC on behalf of ${walletAddress}`);
       const stakeTx = await dcaContract.stakeUSDCOnBehalf(walletAddress, usdcAmount);
       await stakeTx.wait();
@@ -148,22 +150,14 @@ app.post(
 app.post(
   '/subscription',
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { signature, walletAddress } = req.body;
+    const { walletAddress } = req.body;
 
-    if (!signature || !walletAddress) {
-      res.status(400).json({ message: 'Signature and wallet address are required.' });
+    if (!walletAddress) {
+      res.status(400).json({ message: 'Wallet address is required.' });
       return;
     }
 
     try {
-      const message = 'Sign this message to view your DCA subscription.';
-      const recoveredAddress = ethers.verifyMessage(message, signature);
-
-      if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-        res.status(400).json({ message: 'Invalid signature.' });
-        return;
-      }
-
       const order = dcaOrders.find((order) => order.walletAddress === walletAddress);
 
       if (!order) {
