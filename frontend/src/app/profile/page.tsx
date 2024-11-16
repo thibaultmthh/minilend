@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount } from "wagmi";
-import { formatEthAddress } from "../../utils/utils";
+import { formatEthAddress, nFormatter } from "../../utils/utils";
 import { ERC20_STABLE_DECIMALS } from "../../utils/constantes";
 import { bigIntToFormattedString } from "../../utils/bigintUtils";
 import { useUser } from "../../hooks/useUser";
@@ -30,11 +30,15 @@ export default function ProfilePage() {
         {[
           {
             label: "Total Deposited",
-            value: user ? `$${bigIntToFormattedString(user.totalStake, ERC20_STABLE_DECIMALS)}` : "$0.00",
+            value: user
+              ? `$${nFormatter(Number(bigIntToFormattedString(user.totalStake, ERC20_STABLE_DECIMALS)))}`
+              : "$0.00",
           },
           {
             label: "Total Won",
-            value: user ? `$${bigIntToFormattedString(user.totalReward, ERC20_STABLE_DECIMALS)}` : "$0.00",
+            value: user
+              ? `$${nFormatter(Number(bigIntToFormattedString(user.totalReward, ERC20_STABLE_DECIMALS)))}`
+              : "$0.00",
           },
           { label: "YL Points", value: "0 YL" },
           { label: "Win Rate", value: "0%" },
@@ -75,7 +79,8 @@ export default function ProfilePage() {
                         isReward ? "text-emerald-400" : isDeposit ? "text-blue-400" : "text-red-400"
                       }`}
                     >
-                      {isDeposit ? "+" : "-"}${bigIntToFormattedString(event.amount, ERC20_STABLE_DECIMALS)}
+                      {isDeposit || isReward ? "+" : "-"}$
+                      {nFormatter(Number(bigIntToFormattedString(event.amount, ERC20_STABLE_DECIMALS)))}
                     </p>
                   </div>
                 );

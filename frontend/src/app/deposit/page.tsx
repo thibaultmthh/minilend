@@ -347,7 +347,7 @@ export default function DepositPage() {
       </div>
 
       {/* Info Cards */}
-      <div className="grid gap-4">
+      {/* <div className="grid gap-4">
         {[
           { label: "Current APY", value: "4.2%" },
           { label: "Next Prize", value: "12.5 ETH" },
@@ -361,7 +361,7 @@ export default function DepositPage() {
             <span className="font-medium">{item.value}</span>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

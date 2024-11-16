@@ -2,90 +2,47 @@
 
 export default function PrizesPage() {
   return (
-    <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
+    <div className="relative pt-16 pb-24 px-4 max-w-7xl mx-auto">
+      {/* Simple preview banner */}
+      <div className="mb-8 text-yellow-300/80 text-center text-sm border border-yellow-300/20 rounded-lg p-2">
+        🚧 Example Page - Rewards and missions shown are placeholders
+      </div>
+
       {/* Daily Rewards Section */}
       <div className="space-y-2 mb-8">
         <h2 className="text-2xl md:text-3xl font-medium text-white/90">Daily Rewards</h2>
-        <p className="text-base text-white/60">Connect every day to claim your rewards and boost your earnings!</p>
+        <p className="text-base text-white/60">Connect every day to claim your rewards!</p>
       </div>
 
-      {/* Daily Rewards Calendar */}
-      <div className="grid grid-cols-4 md:grid-cols-7 gap-2 md:gap-3 mb-12">
+      {/* Simplified Calendar */}
+      <div className="grid grid-cols-4 md:grid-cols-7 gap-2 md:gap-3 mb-12 opacity-75">
         {[...Array(7)].map((_, idx) => (
           <div
             key={idx}
-            className={`aspect-square rounded-xl border ${
-              idx === 2
-                ? "bg-blue-500 border-blue-400"
-                : idx < 2
-                ? "bg-gray-500/20 border-gray-500"
-                : "bg-white/5 border-white/10"
-            } p-2 md:p-3 flex flex-col items-center justify-center relative`}
+            className="aspect-square rounded-xl border border-white/10 bg-white/5 p-2 md:p-3 flex flex-col items-center justify-center"
           >
             <span className="text-xs md:text-sm text-white/60">Day {idx + 1}</span>
-            <span className="text-lg md:text-xl mt-1">🎁</span>
-            <span className="text-xs md:text-sm font-medium mt-1">{idx === 6 ? "100 YL" : `${(idx + 1) * 10} YL`}</span>
-            {idx === 2 && <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full animate-pulse" />}
+            <span className="text-lg md:text-xl mt-1">?</span>
+            <span className="text-xs md:text-sm font-medium mt-1">??? YL</span>
           </div>
         ))}
       </div>
 
-      {/* Missions Section */}
+      {/* Missions Section - Simplified */}
       <div className="space-y-2 mb-8">
         <h2 className="text-2xl md:text-3xl font-medium text-white/90">Missions</h2>
-        <p className="text-base text-white/60">Complete tasks to earn additional rewards</p>
+        <p className="text-base text-white/60">Complete tasks to earn rewards</p>
       </div>
 
-      {/* Mission Cards */}
-      <div className="space-y-4">
-        {[
-          {
-            icon: "🐦",
-            title: "Follow on Twitter",
-            reward: "50 YL",
-            status: "completed",
-          },
-          {
-            icon: "❤️",
-            title: "Like & Retweet our latest post",
-            reward: "100 YL",
-            status: "active",
-          },
-          {
-            icon: "👥",
-            title: "Invite 3 friends",
-            reward: "200 YL",
-            status: "active",
-          },
-          {
-            icon: "💰",
-            title: "Make your first deposit",
-            reward: "500 YL",
-            status: "locked",
-          },
-        ].map((mission) => (
-          <div
-            key={mission.title}
-            className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between"
-          >
+      {/* Placeholder Missions */}
+      <div className="space-y-4 opacity-75">
+        {[1, 2, 3].map((idx) => (
+          <div key={idx} className="bg-white/5 rounded-xl p-4 border border-white/10 flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <span className="text-2xl">{mission.icon}</span>
-              <div>
-                <h3 className="font-medium">{mission.title}</h3>
-                <p className="text-sm text-white/60">Reward: {mission.reward}</p>
-              </div>
+              <span className="text-2xl">❔</span>
+              <div className="w-32 h-4 bg-white/10 rounded animate-pulse" />
             </div>
-            <button
-              className={`px-4 py-2 rounded-lg font-medium ${
-                mission.status === "completed"
-                  ? "bg-gray-500 text-white/60 cursor-not-allowed"
-                  : mission.status === "active"
-                  ? "bg-blue-500 text-white"
-                  : "bg-white/10 text-white/60 cursor-not-allowed"
-              }`}
-            >
-              {mission.status === "completed" ? "Claimed" : mission.status === "active" ? "Claim" : "Locked"}
-            </button>
+            <div className="w-20 h-8 bg-white/10 rounded-lg animate-pulse" />
           </div>
         ))}
       </div>

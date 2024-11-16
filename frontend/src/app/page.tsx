@@ -4,7 +4,7 @@
 // import { useAccount } from "wagmi";
 import { ERC20_STABLE_DECIMALS } from "../utils/constantes";
 import { useWaves } from "../hooks/useWaves";
-import { nFormatter } from "../utils/utils";
+import { formatEthAddress, nFormatter } from "../utils/utils";
 import { bigIntToFormattedString } from "../utils/bigintUtils";
 import useMyDeposit from "../hooks/useMyDeposit";
 import Link from "next/link";
@@ -36,9 +36,9 @@ function WinningModal({ amount, onClose }: { amount: string; onClose: () => void
           ✕
         </button>
         <div className="text-center space-y-4">
-          <h2 className="text-3xl font-bold text-white">🎉 Congratulations! 🎉</h2>
-          <p className="text-xl text-white/90">You won</p>
-          <p className="text-4xl font-bold text-green-400">${amount}</p>
+          <h2 className="text-2xl font-bold text-white">🎉 Congratulations!</h2>
+          <p className="text-md text-white/90">You won</p>
+          <p className="text-3xl font-bold text-green-400">${amount}</p>
           <p className="text-white/60">The reward has been added to your balance</p>
           <button
             onClick={onClose}
@@ -102,12 +102,6 @@ export default function Home() {
       {/* Main Content */}
       <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
         {/* Ajouter cette nouvelle section avant le Hero section */}
-        <div className="mb-8 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 text-transparent bg-clip-text">
-            ${nFormatter(Number(bigIntToFormattedString(totalRewardsDistributed || 0n, ERC20_STABLE_DECIMALS)))}
-          </h1>
-          <p className="text-white/60 text-xl mt-2">Total Rewards Distributed</p>
-        </div>
 
         {/* Hero section */}
         <div className="space-y-1 mb-4">
@@ -147,14 +141,20 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4">
             {[
               {
+                label: "Total Distributed",
+                value:
+                  "$" +
+                  nFormatter(Number(bigIntToFormattedString(totalRewardsDistributed || 0n, ERC20_STABLE_DECIMALS))),
+                color: "blue",
+              },
+              {
                 label: "Your Current Deposit",
                 value:
                   nFormatter(
                     Number(bigIntToFormattedString(stackedBalance || 1000000000000000000000000n, ERC20_STABLE_DECIMALS))
                   ) + " $",
-                color: "blue",
+                color: "indigo",
               },
-              { label: "Winning Chance", value: "0%", color: "indigo" },
             ].map((stat) => (
               <div key={stat.label} className="bg-white/5 rounded-2xl p-4 border border-white/10">
                 <p className="text-sm text-white/60">{stat.label}</p>
@@ -208,13 +208,9 @@ export default function Home() {
                     >
                       <div>
                         <p className="text-sm text-white/60">{formattedDate}</p>
-                        {isCurrentWave ? (
-                          <p className="text-sm text-blue-400">In Progress</p>
-                        ) : (
-                          <p className="font-mono text-sm">{wave.winners[0]?.user?.id}</p>
-                        )}
+                        {isCurrentWave && <p className="text-sm text-blue-400">In Progress</p>}
                       </div>
-                      <p className={`font-medium  ${isCurrentWave ? "text-blue-400 blur-sm" : "text-emerald-400"}`}>
+                      <p className={`font-medium ${isCurrentWave ? "text-blue-400 blur-sm" : "text-emerald-400"}`}>
                         {nFormatter(Number(rewardAmount))}$
                       </p>
                     </div>
