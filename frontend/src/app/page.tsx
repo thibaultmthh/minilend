@@ -34,6 +34,8 @@ export default function Home() {
   });
 
   const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
+
+  console.log({ totalStaked });
   // const account = useAccount();
 
   useEffect(() => {
@@ -46,8 +48,6 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  console.log({ totalStaked, waves });
-
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Main Content */}
@@ -55,10 +55,11 @@ export default function Home() {
         {/* Hero section */}
         <div className="space-y-2 mb-8">
           <h2 className="text-2xl md:text-3xl font-medium text-white/90">
-            Transform your savings into winning opportunities
+            Earn money without the risk!
           </h2>
           <p className="text-base text-white/60">
-            Earn interest on your deposits while getting weekly chances to win big prizes. No loss, all reward.
+            Deposit your money and get a chance to multiply your savings every
+            week!
           </p>
         </div>
 
@@ -67,15 +68,24 @@ export default function Home() {
           {/* Hero Stats */}
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-950 to-indigo-950 p-6">
             <div className="absolute inset-0 bg-grid-white/[0.02]" />
+            <p className="text-sm text-white/60">Tontine total value</p>
+
             <h2 className="text-3xl font-bold mb-6">
-              ${nFormatter(Number(bigIntToFormattedString(totalStaked || 0n, ERC20_STABLE_DECIMALS)))}
+              $
+              {nFormatter(
+                Number(
+                  bigIntToFormattedString(
+                    totalStaked || 1000000000000000000000000n,
+                    ERC20_STABLE_DECIMALS
+                  )
+                )
+              )}
             </h2>
             <div className="flex justify-between items-end">
-              <div>
-                <p className="text-sm text-white/60">Total Pool Size</p>
-                <p className="text-lg font-medium">4.2% APY</p>
-              </div>
-              <Link href="/deposit" className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium">
+              <Link
+                href="/deposit"
+                className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium"
+              >
                 Deposit
               </Link>
             </div>
@@ -85,15 +95,28 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-4">
             {[
               {
-                label: "Your Deposit",
-                value: nFormatter(Number(bigIntToFormattedString(stackedBalance || 0n, ERC20_STABLE_DECIMALS))) + " $",
+                label: "Your Current Deposit",
+                value:
+                  nFormatter(
+                    Number(
+                      bigIntToFormattedString(
+                        stackedBalance || 1000000000000000000000000n,
+                        ERC20_STABLE_DECIMALS
+                      )
+                    )
+                  ) + " $",
                 color: "blue",
               },
-              { label: "Win Chance", value: "0%", color: "indigo" },
+              { label: "Winning Chance", value: "0%", color: "indigo" },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white/5 rounded-2xl p-4 border border-white/10">
+              <div
+                key={stat.label}
+                className="bg-white/5 rounded-2xl p-4 border border-white/10"
+              >
                 <p className="text-sm text-white/60">{stat.label}</p>
-                <p className={`text-xl font-semibold text-${stat.color}-400`}>{stat.value}</p>
+                <p className={`text-xl font-semibold text-${stat.color}-400`}>
+                  {stat.value}
+                </p>
               </div>
             ))}
           </div>
@@ -121,11 +144,17 @@ export default function Home() {
             <h3 className="text-lg font-semibold">Recent Winners</h3>
             <div className="space-y-2">
               {waves?.waves
-                ?.sort((a, b) => Number(b.endedAt || Infinity) - Number(a.endedAt || Infinity))
+                ?.sort(
+                  (a, b) =>
+                    Number(b.endedAt || Infinity) -
+                    Number(a.endedAt || Infinity)
+                )
                 .slice(0, 10)
                 .map((wave) => {
                   const isCurrentWave = !wave.rewardsDistributed;
-                  const date = wave.endedAt ? new Date(Number(wave.endedAt) * 1000) : null;
+                  const date = wave.endedAt
+                    ? new Date(Number(wave.endedAt) * 1000)
+                    : null;
                   const formattedDate = date
                     ? date
                         .toLocaleDateString("en-US", {
@@ -134,7 +163,10 @@ export default function Home() {
                         })
                         .toUpperCase()
                     : "CURRENT WAVE";
-                  const rewardAmount = bigIntToFormattedString(BigInt(wave.totalReward), ERC20_STABLE_DECIMALS);
+                  const rewardAmount = bigIntToFormattedString(
+                    BigInt(wave.totalReward),
+                    ERC20_STABLE_DECIMALS
+                  );
 
                   return (
                     <div
@@ -146,10 +178,16 @@ export default function Home() {
                         {isCurrentWave ? (
                           <p className="text-sm text-blue-400">In Progress</p>
                         ) : (
-                          <p className="font-mono text-sm">{wave.winners[0]?.user?.id}</p>
+                          <p className="font-mono text-sm">
+                            {wave.winners[0]?.user?.id}
+                          </p>
                         )}
                       </div>
-                      <p className={`font-medium blur-sm ${isCurrentWave ? "text-blue-400" : "text-emerald-400"}`}>
+                      <p
+                        className={`font-medium blur-sm ${
+                          isCurrentWave ? "text-blue-400" : "text-emerald-400"
+                        }`}
+                      >
                         {nFormatter(Number(rewardAmount))}$
                       </p>
                     </div>

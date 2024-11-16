@@ -1,22 +1,29 @@
-specVersion: 0.0.4
+specVersion: 1.0.0
 description: USDC Staking Pool Subgraph
 repository: https://github.com/your-username/usdc-staking-subgraph
 schema:
   file: ./schema.graphql
+features:
+  - nonFatalErrors
+  - grafting
+  - aggregations
 dataSources:
   - kind: ethereum
     name: USDCStaking
     network: celo
     source:
-      address: "0x41bc724f0679f6184F25704749b0b24317386eDf"
+      address: "0xd3C9afb7D775a99a349fC1dF34500248C5C3bE65"
       abi: USDCStaking
       startBlock: 28804927
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - ProtocolMetrics
+        - ProtocolDayData
+        - WaveDayData
+        - UserDayData
+        - WeeklyRewardData
         - User
         - Stake
         - Withdraw
@@ -45,6 +52,3 @@ dataSources:
         - event: Referred(address,address)
           handler: handleReferred
       file: ./src/USDCStaking.ts
-features:
-  - nonFatalErrors
-  - grafting

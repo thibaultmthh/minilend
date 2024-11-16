@@ -3,8 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+<<<<<<< HEAD
     "dev": "next dev & pnpm codegen",
     "build": "graphql-codegen & next build",
+=======
+    "dev": "next dev & pnpm codegen --port 3002",
+    "build": "pnpm codegen & next build",
+>>>>>>> 80155b6 (fix: front)
     "start": "next start",
     "lint": "next lint",
     "codegen": "graphql-codegen --watch"
