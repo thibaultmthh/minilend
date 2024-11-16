@@ -15,6 +15,7 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const isMinipay = window.ethereum.isMiniPay;
   return (
     <DynamicContextProvider
       settings={{
@@ -29,7 +30,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <ApolloProvider client={apolloClientClient}>
               <RainbowKitProvider>
                 <Toaster />
-                {children}
+                {isMinipay ? children : <DynamicWagmiConnector>{children}</DynamicWagmiConnector>}
               </RainbowKitProvider>
             </ApolloProvider>
           </DynamicWagmiConnector>
