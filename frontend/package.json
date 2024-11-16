@@ -7,7 +7,7 @@
     "build": "pnpm codegen & next build",
     "start": "next start",
     "lint": "next lint",
-    "codegen": "graphql-codegen --watch"
+    "codegen": "graphql-codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.11.10",
