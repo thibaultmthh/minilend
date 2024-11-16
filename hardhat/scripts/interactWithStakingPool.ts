@@ -4,7 +4,7 @@ import { USDCStakingPool, IERC20 } from "../typechain-types";
 async function main() {
   // Contract addresses
   const USDC_ADDRESS = "0x765de816845861e75a25fca122bb6898b8b1282a";
-  const STAKING_POOL_ADDRESS = "0x41bc724f0679f6184F25704749b0b24317386eDf"; // Address from your deployment
+  const STAKING_POOL_ADDRESS = "0xd3C9afb7D775a99a349fC1dF34500248C5C3bE65"; // Address from your deployment
   
   // Amount to stake (assuming USDC has 6 decimals)
   const amountToStake = ethers.parseUnits("10", 0); // Staking 100 USDC
@@ -23,7 +23,7 @@ async function main() {
 
   // Approve USDC spending
   console.log("Approving USDC...");
-  const approveTx = await usdc.approve(STAKING_POOL_ADDRESS, amountToStake);
+  const approveTx = await usdc.approve(STAKING_POOL_ADDRESS, ethers.parseUnits("10", 18));
   await approveTx.wait();
   console.log("USDC approved");
 
