@@ -14,8 +14,11 @@ import {
   User,
   Reserve,
   UserReserve,
-  LiquidationCall as LiquidationCallEntity
+  LiquidationCall as LiquidationCallEntity,
+  BorrowEvent,
+  DepositEvent
 } from "../generated/schema";
+import { updateDailyPoolStats, updateDailyReserveStats } from './mappings/stats';
 
 function getOrCreateLendingPool(): LendingPool {
   let pool = LendingPool.load("1");
@@ -25,6 +28,7 @@ function getOrCreateLendingPool(): LendingPool {
     pool.totalValueLockedETH = BigInt.fromI32(0);
     pool.totalBorrowsETH = BigInt.fromI32(0);
     pool.lastUpdateTimestamp = BigInt.fromI32(0);
+    pool.searchText = "Moola Lending Pool";
     pool.save();
   }
   return pool;
@@ -42,6 +46,8 @@ function getOrCreateUser(address: Address): User {
     user.healthFactor = BigInt.fromI32(0);
     user.borrowedReservesCount = 0;
     user.lastUpdateTimestamp = BigInt.fromI32(0);
+    user.status = "ACTIVE";
+    user.searchText = address.toHexString();
     user.save();
   }
   return user;
@@ -73,6 +79,7 @@ function getOrCreateReserve(asset: Address): Reserve {
     reserve.borrowingEnabled = true;
     reserve.stableBorrowRateEnabled = true;
     reserve.lastUpdateTimestamp = BigInt.fromI32(0);
+    reserve.searchText = asset.toHexString();
     reserve.save();
   }
   return reserve;
@@ -95,6 +102,7 @@ function getOrCreateUserReserve(user: User, reserve: Reserve): UserReserve {
     userReserve.stableBorrowLastUpdateTimestamp = BigInt.fromI32(0);
     userReserve.usageAsCollateralEnabled = true;
     userReserve.lastUpdateTimestamp = BigInt.fromI32(0);
+    userReserve.interestRateMode = "NONE";
     userReserve.save();
   }
   return userReserve;
@@ -104,30 +112,57 @@ export function handleDeposit(event: Deposit): void {
   let user = getOrCreateUser(event.params.user);
   let reserve = getOrCreateReserve(event.params.reserve);
   let userReserve = getOrCreateUserReserve(user, reserve);
+  let pool = getOrCreateLendingPool();
 
   userReserve.scaledATokenBalance = userReserve.scaledATokenBalance.plus(event.params.amount);
   userReserve.currentATokenBalance = userReserve.currentATokenBalance.plus(event.params.amount);
   userReserve.lastUpdateTimestamp = event.block.timestamp;
+  if (!userReserve.interestRateMode) {
+    userReserve.interestRateMode = "NONE";
+  }
   userReserve.save();
 
   reserve.totalDeposits = reserve.totalDeposits.plus(event.params.amount);
   reserve.lastUpdateTimestamp = event.block.timestamp;
   reserve.save();
+
+  pool.totalValueLockedETH = pool.totalValueLockedETH.plus(event.params.amount);
+  pool.lastUpdateTimestamp = event.block.timestamp;
+  pool.save();
+
+  updateDailyPoolStats(pool, event.block.timestamp, event.params.user);
+  updateDailyReserveStats(reserve, event.block.timestamp);
+
+  // Create DepositEvent
+  let depositEvent = new DepositEvent(
+    event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
+  );
+  depositEvent.timestamp = event.block.timestamp;
+  depositEvent.txHash = event.transaction.hash;
+  depositEvent.blockNumber = event.block.number;
+  depositEvent.emitter = event.address;
+  depositEvent.user = user.id;
+  depositEvent.reserve = reserve.id;
+  depositEvent.amount = event.params.amount;
+  depositEvent.save();
 }
 
 export function handleBorrow(event: Borrow): void {
   let user = getOrCreateUser(event.params.user);
   let reserve = getOrCreateReserve(event.params.reserve);
   let userReserve = getOrCreateUserReserve(user, reserve);
+  let pool = getOrCreateLendingPool();
 
-  if (event.params.borrowRateMode.equals(BigInt.fromI32(1))) { // Stable
+  if (event.params.borrowRateMode.equals(BigInt.fromI32(1))) {
     userReserve.principalStableDebt = userReserve.principalStableDebt.plus(event.params.amount);
     userReserve.currentStableDebt = userReserve.currentStableDebt.plus(event.params.amount);
     userReserve.stableBorrowRate = event.params.borrowRate;
+    userReserve.interestRateMode = "STABLE";
     reserve.totalStableBorrows = reserve.totalStableBorrows.plus(event.params.amount);
-  } else { // Variable
+  } else {
     userReserve.scaledVariableDebt = userReserve.scaledVariableDebt.plus(event.params.amount);
     userReserve.currentVariableDebt = userReserve.currentVariableDebt.plus(event.params.amount);
+    userReserve.interestRateMode = "VARIABLE";
     reserve.totalVariableBorrows = reserve.totalVariableBorrows.plus(event.params.amount);
   }
 
@@ -137,8 +172,30 @@ export function handleBorrow(event: Borrow): void {
   reserve.lastUpdateTimestamp = event.block.timestamp;
   reserve.save();
 
+  pool.totalBorrowsETH = pool.totalBorrowsETH.plus(event.params.amount);
+  pool.lastUpdateTimestamp = event.block.timestamp;
+  pool.save();
+
   user.borrowedReservesCount += 1;
   user.save();
+
+  updateDailyPoolStats(pool, event.block.timestamp, event.params.user);
+  updateDailyReserveStats(reserve, event.block.timestamp);
+
+  // Create BorrowEvent
+  let borrowEvent = new BorrowEvent(
+    event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
+  );
+  borrowEvent.timestamp = event.block.timestamp;
+  borrowEvent.txHash = event.transaction.hash;
+  borrowEvent.blockNumber = event.block.number;
+  borrowEvent.emitter = event.address;
+  borrowEvent.user = user.id;
+  borrowEvent.reserve = reserve.id;
+  borrowEvent.amount = event.params.amount;
+  borrowEvent.interestRateMode = event.params.borrowRateMode.equals(BigInt.fromI32(1)) ? "STABLE" : "VARIABLE";
+  borrowEvent.borrowRate = event.params.borrowRate;
+  borrowEvent.save();
 }
 
 export function handleLiquidationCall(event: LiquidationCall): void {
@@ -147,6 +204,11 @@ export function handleLiquidationCall(event: LiquidationCall): void {
     event.transaction.hash.toHexString() + "-" + event.logIndex.toString()
   );
 
+  liquidationCall.timestamp = event.block.timestamp;
+  liquidationCall.txHash = event.transaction.hash;
+  liquidationCall.blockNumber = event.block.number;
+  liquidationCall.emitter = event.address;
+
   liquidationCall.user = user.id;
   liquidationCall.collateralReserve = event.params.collateralAsset.toHexString();
   liquidationCall.debtReserve = event.params.debtAsset.toHexString();
@@ -154,12 +216,22 @@ export function handleLiquidationCall(event: LiquidationCall): void {
   liquidationCall.debtToCover = event.params.debtToCover;
   liquidationCall.liquidator = event.params.liquidator;
   liquidationCall.receiveAToken = event.params.receiveAToken;
-  liquidationCall.timestamp = event.block.timestamp;
+
   liquidationCall.save();
+
+  let pool = getOrCreateLendingPool();
+  updateDailyPoolStats(pool, event.block.timestamp, event.params.user);
+  updateDailyPoolStats(pool, event.block.timestamp, event.params.liquidator);
+
+  let collateralReserve = getOrCreateReserve(event.params.collateralAsset);
+  let debtReserve = getOrCreateReserve(event.params.debtAsset);
+  updateDailyReserveStats(collateralReserve, event.block.timestamp);
+  updateDailyReserveStats(debtReserve, event.block.timestamp);
 }
 
 export function handleReserveDataUpdated(event: ReserveDataUpdated): void {
   let reserve = getOrCreateReserve(event.params.reserve);
+  let pool = getOrCreateLendingPool();
   
   reserve.liquidityRate = event.params.liquidityRate;
   reserve.stableBorrowRate = event.params.stableBorrowRate;
@@ -176,4 +248,7 @@ export function handleReserveDataUpdated(event: ReserveDataUpdated): void {
   reserve.utilizationRate = utilizationRate;
   reserve.lastUpdateTimestamp = event.block.timestamp;
   reserve.save();
+
+  updateDailyPoolStats(pool, event.block.timestamp, event.address);
+  updateDailyReserveStats(reserve, event.block.timestamp);
 }

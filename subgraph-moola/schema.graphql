@@ -1,3 +1,23 @@
+enum InterestRateMode {
+  NONE
+  STABLE
+  VARIABLE
+}
+
+enum UserStatus {
+  ACTIVE
+  LIQUIDATED
+  INACTIVE
+}
+
+interface Event {
+  id: ID!
+  timestamp: BigInt!
+  txHash: Bytes!
+  blockNumber: BigInt!
+  emitter: Bytes!
+}
+
 type LendingPool @entity {
   id: ID!
   paused: Boolean!
@@ -5,89 +25,148 @@ type LendingPool @entity {
   totalBorrowsETH: BigInt!
   reserves: [Reserve!]! @derivedFrom(field: "pool")
   lastUpdateTimestamp: BigInt!
+  # Aggregations
+  dailyStats: [DailyPoolStat!]! @derivedFrom(field: "pool")
+  # Full text search fields
+  searchText: String! # Combination of relevant fields for searching
 }
 
-type Reserve @entity {
-  id: ID! # asset address
+type DailyPoolStat @entity {
+  id: ID! # timestamp rounded to day + pool address
   pool: LendingPool!
-  name: String!
+  timestamp: BigInt!
+  totalValueLockedETH: BigInt!
+  totalBorrowsETH: BigInt!
+  dailyVolume: BigInt!
+  uniqueUsers: Int!
+  txCount: Int!
+}
+
+type Reserve @entity(immutable: false) {
+  "Asset address"
+  id: ID!
+  pool: LendingPool!
   symbol: String!
+  name: String!
   decimals: Int!
   aTokenAddress: Bytes!
   stableDebtTokenAddress: Bytes!
   variableDebtTokenAddress: Bytes!
   
-  # Interest rates
-  liquidityRate: BigInt!          # APY for depositors
-  variableBorrowRate: BigInt!     # Variable borrow APY
-  stableBorrowRate: BigInt!       # Stable borrow APY
+  liquidityRate: BigInt!
+  variableBorrowRate: BigInt!
+  stableBorrowRate: BigInt!
   
-  # Reserve state
   totalDeposits: BigInt!
   totalStableBorrows: BigInt!
   totalVariableBorrows: BigInt!
-  utilizationRate: BigInt!        # Usage ratio of the reserve
-  liquidityIndex: BigInt!         # Accumulated interest for deposits
-  variableBorrowIndex: BigInt!    # Accumulated interest for variable borrows
+  utilizationRate: BigInt!
+  liquidityIndex: BigInt!
+  variableBorrowIndex: BigInt!
   
-  # Configuration
   isActive: Boolean!
   isFrozen: Boolean!
   borrowingEnabled: Boolean!
   stableBorrowRateEnabled: Boolean!
   
-  # Relationships
   userReserves: [UserReserve!]! @derivedFrom(field: "reserve")
   lastUpdateTimestamp: BigInt!
+  
+  # Aggregations
+  dailyStats: [DailyReserveStat!]! @derivedFrom(field: "reserve")
+  # Full text search
+  searchText: String!
 }
 
-type UserReserve @entity {
-  id: ID! # user + reserve id
+type DailyReserveStat @entity {
+  id: ID!
+  reserve: Reserve!
+  timestamp: BigInt!
+  utilizationRate: BigInt!
+  totalDeposits: BigInt!
+  totalBorrows: BigInt!
+  depositAPY: BigInt!
+  borrowAPY: BigInt!
+}
+
+type UserReserve @entity(immutable: false) {
+  id: ID!
   user: User!
   reserve: Reserve!
   
-  # Deposit state
-  scaledATokenBalance: BigInt!    # Raw aToken balance
-  currentATokenBalance: BigInt!   # aToken balance with interest
+  scaledATokenBalance: BigInt!
+  currentATokenBalance: BigInt!
   usageAsCollateralEnabled: Boolean!
   
-  # Borrow state - Variable Rate
-  scaledVariableDebt: BigInt!     # Raw variable debt
-  currentVariableDebt: BigInt!    # Variable debt with interest
+  scaledVariableDebt: BigInt!
+  currentVariableDebt: BigInt!
   
-  # Borrow state - Stable Rate
-  principalStableDebt: BigInt!    # Original stable debt amount
-  currentStableDebt: BigInt!      # Stable debt with interest
-  stableBorrowRate: BigInt!       # User's stable borrow rate
+  principalStableDebt: BigInt!
+  currentStableDebt: BigInt!
+  stableBorrowRate: BigInt!
   stableBorrowLastUpdateTimestamp: BigInt!
   
+  interestRateMode: InterestRateMode!
   lastUpdateTimestamp: BigInt!
 }
 
 type User @entity {
-  id: ID! # user address
+  id: ID!
   userReserves: [UserReserve!]! @derivedFrom(field: "user")
+  status: UserStatus!
   
-  # Risk metrics
-  totalCollateralETH: BigInt!     # Total collateral in ETH
-  totalBorrowsETH: BigInt!        # Total borrows in ETH
-  availableBorrowsETH: BigInt!    # Available borrowing power
+  totalCollateralETH: BigInt!
+  totalBorrowsETH: BigInt!
+  availableBorrowsETH: BigInt!
   currentLiquidationThreshold: BigInt!
-  ltv: BigInt!                    # Loan to Value ratio
-  healthFactor: BigInt!           # Overall position health
+  ltv: BigInt!
+  healthFactor: BigInt!
   
-  borrowedReservesCount: Int!     # Number of reserves user has borrowed
+  borrowedReservesCount: Int!
   lastUpdateTimestamp: BigInt!
+  
+  # Full text search
+  searchText: String!
 }
 
-type LiquidationCall @entity {
+type LiquidationCall implements Event @entity(immutable: true) {
   id: ID!
-  user: User!                     # User being liquidated
-  collateralReserve: Reserve!     # Reserve being liquidated
-  debtReserve: Reserve!          # Reserve being repaid
-  collateralAmount: BigInt!      # Amount of collateral liquidated
-  debtToCover: BigInt!           # Amount of debt being covered
-  liquidator: Bytes!             # Address of liquidator
-  receiveAToken: Boolean!        # Whether liquidator receives aToken
   timestamp: BigInt!
+  txHash: Bytes!
+  blockNumber: BigInt!
+  emitter: Bytes!
+  
+  user: User!
+  collateralReserve: Reserve!
+  debtReserve: Reserve!
+  collateralAmount: BigInt!
+  debtToCover: BigInt!
+  liquidator: Bytes!
+  receiveAToken: Boolean!
+}
+
+type BorrowEvent implements Event @entity(immutable: true) {
+  id: ID!
+  timestamp: BigInt!
+  txHash: Bytes!
+  blockNumber: BigInt!
+  emitter: Bytes!
+  
+  user: User!
+  reserve: Reserve!
+  amount: BigInt!
+  interestRateMode: InterestRateMode!
+  borrowRate: BigInt!
+}
+
+type DepositEvent implements Event @entity(immutable: true) {
+  id: ID!
+  timestamp: BigInt!
+  txHash: Bytes!
+  blockNumber: BigInt!
+  emitter: Bytes!
+  
+  user: User!
+  reserve: Reserve!
+  amount: BigInt!
 }
