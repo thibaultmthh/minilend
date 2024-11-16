@@ -4,7 +4,7 @@
 // import { useAccount } from "wagmi";
 import { ERC20_STABLE_DECIMALS } from "../utils/constantes";
 import { useWaves } from "../hooks/useWaves";
-import { formatEthAddress, nFormatter } from "../utils/utils";
+import {  nFormatter } from "../utils/utils";
 import { bigIntToFormattedString } from "../utils/bigintUtils";
 import useMyDeposit from "../hooks/useMyDeposit";
 import Link from "next/link";
@@ -108,7 +108,7 @@ export default function Home() {
           <h2 className="text-2xl md:text-3xl font-medium text-white/90">Earn money without any risk!</h2>
           <p className="text-base text-white/60 m-px">Save your money</p>
           <p className="text-base text-white/60 m-px">Withdraw any time</p>
-          <p className="text-base text-white/60 m-px">Multiply it. You just can&apos;t loose</p>
+          <p className="text-base text-white/60 m-px">Multiply it.</p>
         </div>
 
         {/* Rest of the content (Stats, Cards, etc.) */}
