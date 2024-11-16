@@ -1,0 +1,93 @@
+type LendingPool @entity {
+  id: ID!
+  paused: Boolean!
+  totalValueLockedETH: BigInt!
+  totalBorrowsETH: BigInt!
+  reserves: [Reserve!]! @derivedFrom(field: "pool")
+  lastUpdateTimestamp: BigInt!
+}
+
+type Reserve @entity {
+  id: ID! # asset address
+  pool: LendingPool!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  aTokenAddress: Bytes!
+  stableDebtTokenAddress: Bytes!
+  variableDebtTokenAddress: Bytes!
+  
+  # Interest rates
+  liquidityRate: BigInt!          # APY for depositors
+  variableBorrowRate: BigInt!     # Variable borrow APY
+  stableBorrowRate: BigInt!       # Stable borrow APY
+  
+  # Reserve state
+  totalDeposits: BigInt!
+  totalStableBorrows: BigInt!
+  totalVariableBorrows: BigInt!
+  utilizationRate: BigInt!        # Usage ratio of the reserve
+  liquidityIndex: BigInt!         # Accumulated interest for deposits
+  variableBorrowIndex: BigInt!    # Accumulated interest for variable borrows
+  
+  # Configuration
+  isActive: Boolean!
+  isFrozen: Boolean!
+  borrowingEnabled: Boolean!
+  stableBorrowRateEnabled: Boolean!
+  
+  # Relationships
+  userReserves: [UserReserve!]! @derivedFrom(field: "reserve")
+  lastUpdateTimestamp: BigInt!
+}
+
+type UserReserve @entity {
+  id: ID! # user + reserve id
+  user: User!
+  reserve: Reserve!
+  
+  # Deposit state
+  scaledATokenBalance: BigInt!    # Raw aToken balance
+  currentATokenBalance: BigInt!   # aToken balance with interest
+  usageAsCollateralEnabled: Boolean!
+  
+  # Borrow state - Variable Rate
+  scaledVariableDebt: BigInt!     # Raw variable debt
+  currentVariableDebt: BigInt!    # Variable debt with interest
+  
+  # Borrow state - Stable Rate
+  principalStableDebt: BigInt!    # Original stable debt amount
+  currentStableDebt: BigInt!      # Stable debt with interest
+  stableBorrowRate: BigInt!       # User's stable borrow rate
+  stableBorrowLastUpdateTimestamp: BigInt!
+  
+  lastUpdateTimestamp: BigInt!
+}
+
+type User @entity {
+  id: ID! # user address
+  userReserves: [UserReserve!]! @derivedFrom(field: "user")
+  
+  # Risk metrics
+  totalCollateralETH: BigInt!     # Total collateral in ETH
+  totalBorrowsETH: BigInt!        # Total borrows in ETH
+  availableBorrowsETH: BigInt!    # Available borrowing power
+  currentLiquidationThreshold: BigInt!
+  ltv: BigInt!                    # Loan to Value ratio
+  healthFactor: BigInt!           # Overall position health
+  
+  borrowedReservesCount: Int!     # Number of reserves user has borrowed
+  lastUpdateTimestamp: BigInt!
+}
+
+type LiquidationCall @entity {
+  id: ID!
+  user: User!                     # User being liquidated
+  collateralReserve: Reserve!     # Reserve being liquidated
+  debtReserve: Reserve!          # Reserve being repaid
+  collateralAmount: BigInt!      # Amount of collateral liquidated
+  debtToCover: BigInt!           # Amount of debt being covered
+  liquidator: Bytes!             # Address of liquidator
+  receiveAToken: Boolean!        # Whether liquidator receives aToken
+  timestamp: BigInt!
+}
