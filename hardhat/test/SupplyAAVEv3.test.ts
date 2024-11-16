@@ -113,15 +113,31 @@ describe("USDC and AavePool Interaction", function () {
   it("allows staking on behalf of another user", async function () {
     const stakeAmount = ethers.parseUnits("5", 18);
     
-    // Use the beneficiarySigner we got in the setup
+    // Get USDC balance of impersonated signer
+    const balance = await usdc.balanceOf(impersonatedSigner.address);
+    console.log("Impersonated signer USDC balance:", balance.toString());
+
+    // Ensure sufficient allowance
     await usdc
       .connect(impersonatedSigner)
       .approve(usdcStakingPool.target, stakeAmount);
 
+    // Verify allowance
+    const allowance = await usdc.allowance(impersonatedSigner.address, usdcStakingPool.target);
+    console.log("Allowance for staking pool:", allowance.toString());
+
     // Initial state checks
     const initialBeneficiaryStake = await usdcStakingPool.users(beneficiarySigner.address);
     const initialTotalStake = await usdcStakingPool.totalStake();
-
+    // Ensure beneficiary approves the staking pool to spend their USDC
+    await usdc
+      .connect(beneficiarySigner)
+      .approve(usdcStakingPool.target, stakeAmount);
+    // Transfer some USDC to beneficiary for testing
+    await usdc.connect(impersonatedSigner).transfer(beneficiarySigner.address, stakeAmount);
+    // Verify beneficiary allowance
+    const beneficiaryAllowance = await usdc.allowance(beneficiarySigner.address, usdcStakingPool.target);
+    expect(beneficiaryAllowance).to.equal(stakeAmount);
     // Stake on behalf
     await usdcStakingPool
       .connect(impersonatedSigner)

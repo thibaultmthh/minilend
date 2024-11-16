@@ -70,6 +70,9 @@ contract USDCStakingPool {
     function distributeRewards() external onlyOwner {
         require(block.number > lastRewardBlock + blocksPerWave, "Too early to call");
         lastRewardBlock = block.number;
+        // Withdraw 1 wei of USDC to refresh aUSDC balance
+        lendingPlatform.withdraw(address(usdc), 1, address(this));
+        lendingPlatform.deposit(address(usdc), 1, address(this), 0);
         
         uint256 random = uint256(blockhash(block.number - 1)) % totalStake;
         emit RewardPool(currentWave, random);
@@ -85,8 +88,8 @@ contract USDCStakingPool {
         return 0;
     }
 
-    function setWinners(address[] calldata winners, uint256[] calldata rewards) external onlyOwner {
-        require(winners.length == rewards.length, "Mismatched winners and rewards");
+    function setWinners(address[] calldata winners) external onlyOwner {
+        require(winners.length > 0, "Winners not set");
         require(!winnersSet, "Winners already set for this wave");
 
         uint256 rewardPool = calculateRewardPool();
@@ -94,10 +97,11 @@ contract USDCStakingPool {
 
         uint256 totalRewards = 0;
         uint256 wave = currentWave - 1;
+        uint256 rewards = rewardPool / winners.length;
         for (uint256 i = 0; i < winners.length; i++) {
-            users[winners[i]].stake += rewards[i];
-            totalRewards += rewards[i];
-            emit WinnerSet(wave, winners[i], rewards[i]);
+            users[winners[i]].stake += rewards;
+            totalRewards += rewards;
+            emit WinnerSet(wave, winners[i], rewards);
         }
         totalStake += rewardPool;
         require(totalRewards == rewardPool, "Total rewards do not match the reward pool");

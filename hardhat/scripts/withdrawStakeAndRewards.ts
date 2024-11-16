@@ -3,7 +3,7 @@ import { USDCStakingPool } from "../typechain-types";
 
 async function main() {
   // Contract address
-  const STAKING_POOL_ADDRESS = "0x41bc724f0679f6184F25704749b0b24317386eDf"; // Your deployed contract address
+  const STAKING_POOL_ADDRESS = "0x18f2Bcd49483154b752eEEd49c70E23C00dE1457"; // Your deployed contract address
   
   // Get signer
   const [signer] = await ethers.getSigners();
