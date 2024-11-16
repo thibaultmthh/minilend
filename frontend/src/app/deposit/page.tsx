@@ -56,9 +56,14 @@ export default function DepositPage() {
   }, [userAddress]);
 
   const refetchAll = () => {
-    refetchBalance();
     refetchAllowance();
     refetchWaves();
+    setTimeout(() => {
+      refetchBalance();
+    }, 400);
+    setTimeout(() => {
+      refetchBalance();
+    }, 1400);
   };
 
   const handleDeposit = async () => {
