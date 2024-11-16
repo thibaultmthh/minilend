@@ -148,22 +148,14 @@ app.post(
 app.post(
   '/subscription',
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { signature, walletAddress } = req.body;
+    const { walletAddress } = req.body;
 
-    if (!signature || !walletAddress) {
-      res.status(400).json({ message: 'Signature and wallet address are required.' });
+    if (!walletAddress) {
+      res.status(400).json({ message: 'Wallet address is required.' });
       return;
     }
 
     try {
-      const message = 'Sign this message to view your DCA subscription.';
-      const recoveredAddress = ethers.verifyMessage(message, signature);
-
-      if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-        res.status(400).json({ message: 'Invalid signature.' });
-        return;
-      }
-
       const order = dcaOrders.find((order) => order.walletAddress === walletAddress);
 
       if (!order) {
