@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { writeContract } from "wagmi/actions";
 
@@ -15,6 +15,9 @@ import { bigIntToFormattedString, formattedStringToBigInt } from "../../utils/bi
 
 import useMyDeposit from "../../hooks/useMyDeposit";
 
+import { Button } from "../../components/ui/button";
+import { dcaService, DCASubscription } from "../../services/dcaService";
+
 export default function DepositPage() {
   const [depositAmount, setDepositAmount] = useState(0n);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,6 +31,18 @@ export default function DepositPage() {
     refetchBalance,
     refetchAllowance,
   } = useErc20TokenInfo({ tokenAddress: ERC20_STABLE_CONTRACT, userAddress, spenderAddress: STABLE_STAKING_CONTRACT });
+
+  const [dcaAmount, setDcaAmount] = useState(0n);
+  const [dcaDay, setDcaDay] = useState(1);
+  const [dcaMonths, setDcaMonths] = useState(1);
+  const [isLoadingDCA, setIsLoadingDCA] = useState(false);
+  const [currentDCA, setCurrentDCA] = useState<DCASubscription | null>(null);
+
+  useEffect(() => {
+    if (userAddress) {
+      dcaService.getSubscription(userAddress).then(setCurrentDCA).catch(console.error);
+    }
+  }, [userAddress]);
 
   const refetchAll = () => {
     refetchBalance();
@@ -78,6 +93,60 @@ export default function DepositPage() {
     }
   };
 
+  const handleDCASetup = async () => {
+    if (!userAddress || dcaAmount <= 0) return;
+    setIsLoadingDCA(true);
+
+    try {
+      // Check and handle allowance for the total DCA amount
+      const totalDCAAmount = dcaAmount * BigInt(dcaMonths);
+
+      if ((stableAllowance || 0n) < totalDCAAmount) {
+        await sendTxWithToasts(
+          writeContract(wagmiConfig, {
+            address: ERC20_STABLE_CONTRACT,
+            abi: ERC20_ABI,
+            functionName: "approve",
+            args: [STABLE_STAKING_CONTRACT, totalDCAAmount],
+          })
+        );
+        await refetchAllowance();
+      }
+
+      // Subscribe to DCA
+      await dcaService.subscribe(userAddress, dcaDay, bigIntToFormattedString(dcaAmount, ERC20_STABLE_DECIMALS));
+
+      // Refresh DCA subscription
+      const subscription = await dcaService.getSubscription(userAddress);
+      setCurrentDCA(subscription);
+
+      // Reset form
+      setDcaAmount(0n);
+      setDcaDay(1);
+      setDcaMonths(1);
+    } catch (error) {
+      console.error("DCA setup failed:", error);
+      alert("Failed to setup DCA: " + (error as Error).message);
+    } finally {
+      setIsLoadingDCA(false);
+    }
+  };
+
+  const handleCancelDCA = async () => {
+    if (!userAddress) return;
+    setIsLoadingDCA(true);
+
+    try {
+      await dcaService.unsubscribe(userAddress);
+      setCurrentDCA(null);
+    } catch (error) {
+      console.error("Failed to cancel DCA:", error);
+      alert("Failed to cancel DCA: " + (error as Error).message);
+    } finally {
+      setIsLoadingDCA(false);
+    }
+  };
+
   console.log({ stableAllowance, stableBalance });
 
   return (
@@ -85,7 +154,7 @@ export default function DepositPage() {
       {/* Header */}
       <div className="space-y-2 mb-8">
         <h2 className="text-2xl md:text-3xl font-medium text-white/90">Deposit</h2>
-        <p className="text-base text-white/60">Deposit ETH to start earning interest and win prizes</p>
+        <p className="text-base text-white/60">Deposit $ to start earning interest and win prizes</p>
       </div>
 
       {/* Staked Amount & Actions */}
@@ -94,7 +163,7 @@ export default function DepositPage() {
           <div className="flex justify-between items-center">
             <span className="text-white/60">Currently Staked</span>
             <span className="text-xl font-medium">
-              {nFormatter(Number(bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)))} STABLE
+              {nFormatter(Number(bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)))} $
             </span>
           </div>
           <button
@@ -111,7 +180,7 @@ export default function DepositPage() {
               ).then(() => refetchAll());
             }}
           >
-            Withdraw STABLE
+            Withdraw $
           </button>
         </div>
       </div>
@@ -122,16 +191,25 @@ export default function DepositPage() {
           <div className="flex justify-between items-center">
             <span className="text-white/60">Amount</span>
             <span className="text-sm text-white/60">
-              Balance: {nFormatter(Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)))} STABLE
+              Balance: {nFormatter(Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)))} $
             </span>
           </div>
 
           <div className="relative">
             <input
               type="number"
+              min="0"
+              step="any"
               placeholder="0.0"
               value={bigIntToFormattedString(depositAmount, ERC20_STABLE_DECIMALS)}
-              onChange={(e) => setDepositAmount(formattedStringToBigInt(e.target.value, ERC20_STABLE_DECIMALS))}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value === "" || parseFloat(value) < 0) {
+                  setDepositAmount(0n);
+                } else {
+                  setDepositAmount(formattedStringToBigInt(value, ERC20_STABLE_DECIMALS));
+                }
+              }}
               className="w-full bg-white/5 rounded-xl p-4 text-2xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -152,9 +230,83 @@ export default function DepositPage() {
               : depositAmount <= 0
               ? "Enter an amount"
               : (stableAllowance || 0n) < depositAmount
-              ? "Approve STABLE"
-              : "Deposit STABLE"}
+              ? "Approve"
+              : "Deposit"}
           </button>
+        </div>
+      </div>
+
+      {/* DCA Settings Card */}
+      <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-medium text-white/90">Set up Monthly DCA</h3>
+            {currentDCA && (
+              <Button variant="danger" size="sm" isLoading={isLoadingDCA} onClick={handleCancelDCA}>
+                Cancel DCA
+              </Button>
+            )}
+          </div>
+
+          {currentDCA ? (
+            <div className="space-y-2">
+              <p className="text-white/60">
+                Current DCA: ${currentDCA.amount} scheduled for day {currentDCA.dayOfMonth} of each month
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <span className="text-white/60">Monthly Amount</span>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="0.0"
+                    value={bigIntToFormattedString(dcaAmount, ERC20_STABLE_DECIMALS)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "" || parseFloat(value) < 0) {
+                        setDcaAmount(0n);
+                      } else {
+                        setDcaAmount(formattedStringToBigInt(value, ERC20_STABLE_DECIMALS));
+                      }
+                    }}
+                    className="w-full bg-white/5 rounded-xl p-4 text-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-white/60">Day of Month</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="28"
+                  value={dcaDay}
+                  onChange={(e) => setDcaDay(Math.min(28, Math.max(1, parseInt(e.target.value))))}
+                  className="w-full bg-white/5 rounded-xl p-4 text-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-white/60">Number of Months</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="12"
+                  value={dcaMonths}
+                  onChange={(e) => setDcaMonths(Math.min(12, Math.max(1, parseInt(e.target.value))))}
+                  className="w-full bg-white/5 rounded-xl p-4 text-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <Button onClick={handleDCASetup} disabled={dcaAmount <= 0} isLoading={isLoadingDCA} className="w-full">
+                Setup Monthly DCA
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

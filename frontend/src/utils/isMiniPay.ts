@@ -1,1 +1,1 @@
-export const isMiniPay = () => !window.ethereum || window.ethereum.isMiniPay;
+export const isMiniPay = () => false; //() => !window.ethereum || window.ethereum.isMiniPay;

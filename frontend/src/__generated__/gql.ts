@@ -14,7 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 const documents = {
-    "query GetWaves {\n    waves {\n      id\n      rewardsDistributed\n      randomSeed\n      totalReward\n      totalStake\n      stakes {\n        user {\n          id\n          totalStake\n          totalReward\n        }\n        id\n        amount\n      }\n      winners {\n        id\n        user {\n          id\n        }\n        odds\n      }\n    }\n}": types.GetWavesDocument,
+    "\n  query GetUser($id: ID!) {\n    user(id: $id) {\n      id\n      totalStake\n      totalReward\n      depositEvents {\n        id\n        amount\n        timestamp\n      }\n      withdrawEvents {\n        id\n        amount\n        timestamp\n      }\n      rewardEvents {\n        id\n        amount\n        timestamp\n      }\n    }\n  }\n": types.GetUserDocument,
+    "query GetWaves {\n    waves {\n      id\n      rewardsDistributed\n      randomSeed\n      totalReward\n      endedAt\n      totalStake\n      stakes {\n        user {\n          id\n          totalStake\n          totalReward\n        }\n        id\n        amount\n      }\n      winners {\n        id\n        user {\n          id\n        }\n        odds\n      }\n    }\n}": types.GetWavesDocument,
 };
 
 /**
@@ -34,7 +35,11 @@ export function gql(source: string): unknown;
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "query GetWaves {\n    waves {\n      id\n      rewardsDistributed\n      randomSeed\n      totalReward\n      totalStake\n      stakes {\n        user {\n          id\n          totalStake\n          totalReward\n        }\n        id\n        amount\n      }\n      winners {\n        id\n        user {\n          id\n        }\n        odds\n      }\n    }\n}"): (typeof documents)["query GetWaves {\n    waves {\n      id\n      rewardsDistributed\n      randomSeed\n      totalReward\n      totalStake\n      stakes {\n        user {\n          id\n          totalStake\n          totalReward\n        }\n        id\n        amount\n      }\n      winners {\n        id\n        user {\n          id\n        }\n        odds\n      }\n    }\n}"];
+export function gql(source: "\n  query GetUser($id: ID!) {\n    user(id: $id) {\n      id\n      totalStake\n      totalReward\n      depositEvents {\n        id\n        amount\n        timestamp\n      }\n      withdrawEvents {\n        id\n        amount\n        timestamp\n      }\n      rewardEvents {\n        id\n        amount\n        timestamp\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetUser($id: ID!) {\n    user(id: $id) {\n      id\n      totalStake\n      totalReward\n      depositEvents {\n        id\n        amount\n        timestamp\n      }\n      withdrawEvents {\n        id\n        amount\n        timestamp\n      }\n      rewardEvents {\n        id\n        amount\n        timestamp\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "query GetWaves {\n    waves {\n      id\n      rewardsDistributed\n      randomSeed\n      totalReward\n      endedAt\n      totalStake\n      stakes {\n        user {\n          id\n          totalStake\n          totalReward\n        }\n        id\n        amount\n      }\n      winners {\n        id\n        user {\n          id\n        }\n        odds\n      }\n    }\n}"): (typeof documents)["query GetWaves {\n    waves {\n      id\n      rewardsDistributed\n      randomSeed\n      totalReward\n      endedAt\n      totalStake\n      stakes {\n        user {\n          id\n          totalStake\n          totalReward\n        }\n        id\n        amount\n      }\n      winners {\n        id\n        user {\n          id\n        }\n        odds\n      }\n    }\n}"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};

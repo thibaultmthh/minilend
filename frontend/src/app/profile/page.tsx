@@ -2,9 +2,16 @@
 
 import { useAccount } from "wagmi";
 import { formatEthAddress } from "../../utils/utils";
+import { ERC20_STABLE_DECIMALS } from "../../utils/constantes";
+import { bigIntToFormattedString } from "../../utils/bigintUtils";
+import { useUser } from "../../hooks/useUser";
+import { formatDate } from "../../utils/dateUtils";
 
 export default function ProfilePage() {
   const { address: userAddress } = useAccount();
+  const { data: userData, loading } = useUser(userAddress);
+  const user = userData?.user;
+
   return (
     <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
       {/* Profile Header */}
@@ -21,8 +28,14 @@ export default function ProfilePage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         {[
-          { label: "Total Deposited", value: "0.0 ETH" },
-          { label: "Total Won", value: "0.0 ETH" },
+          {
+            label: "Total Deposited",
+            value: user ? `$${bigIntToFormattedString(user.totalStake, ERC20_STABLE_DECIMALS)}` : "$0.00",
+          },
+          {
+            label: "Total Won",
+            value: user ? `$${bigIntToFormattedString(user.totalReward, ERC20_STABLE_DECIMALS)}` : "$0.00",
+          },
           { label: "YL Points", value: "0 YL" },
           { label: "Win Rate", value: "0%" },
         ].map((stat) => (
@@ -37,21 +50,37 @@ export default function ProfilePage() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Transaction History</h3>
         <div className="space-y-2">
-          {[
-            { type: "Deposit", amount: "+2.5 ETH", date: "Mar 15, 2024" },
-            { type: "Win", amount: "+0.5 ETH", date: "Mar 08, 2024" },
-          ].map((tx, idx) => (
-            <div
-              key={idx}
-              className="bg-white/5 rounded-xl p-4 border border-white/10 flex justify-between items-center"
-            >
-              <div>
-                <p className="font-medium">{tx.type}</p>
-                <p className="text-sm text-white/60">{tx.date}</p>
-              </div>
-              <p className={`font-medium ${tx.type === "Win" ? "text-emerald-400" : "text-blue-400"}`}>{tx.amount}</p>
-            </div>
-          ))}
+          {loading ? (
+            <div className="text-white/60">Loading...</div>
+          ) : !user ? (
+            <div className="text-white/60">No transactions found</div>
+          ) : (
+            [...(user.depositEvents || []), ...(user.withdrawEvents || []), ...(user.rewardEvents || [])]
+              .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
+              .map((event, idx) => {
+                const isDeposit = "depositEvents" in user && user.depositEvents?.some((d) => d.id === event.id);
+                const isReward = "rewardEvents" in user && user.rewardEvents?.some((r) => r.id === event.id);
+
+                return (
+                  <div
+                    key={event.id}
+                    className="bg-white/5 rounded-xl p-4 border border-white/10 flex justify-between items-center"
+                  >
+                    <div>
+                      <p className="font-medium">{isDeposit ? "Deposit" : isReward ? "Win" : "Withdraw"}</p>
+                      <p className="text-sm text-white/60">{formatDate(Number(event.timestamp) * 1000)}</p>
+                    </div>
+                    <p
+                      className={`font-medium ${
+                        isReward ? "text-emerald-400" : isDeposit ? "text-blue-400" : "text-red-400"
+                      }`}
+                    >
+                      {isDeposit ? "+" : "-"}${bigIntToFormattedString(event.amount, ERC20_STABLE_DECIMALS)}
+                    </p>
+                  </div>
+                );
+              })
+          )}
         </div>
       </div>
     </div>
