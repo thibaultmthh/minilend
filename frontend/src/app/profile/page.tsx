@@ -48,7 +48,7 @@ export default function ProfilePage() {
 
       {/* Transaction History */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Transaction History</h3>
+        <h3 className="text-lg font-semibold">Transaction History </h3>
         <div className="space-y-2">
           {loading ? (
             <div className="text-white/60">Loading...</div>
