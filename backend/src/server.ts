@@ -12,7 +12,8 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Welcome to the backend API fdp!' });
 });
 
-const dcaOrders: { walletAddress: string; dayOfMonth: number }[] = [];
+// Temporary storage for DCA orders and cron jobs
+const dcaOrders: { walletAddress: string; dayOfMonth: number; amount: string }[] = [];
 const cronJobs: { walletAddress: string; job: cron.ScheduledTask }[] = [];
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 const privateKey = process.env.DCA_PRIVATE_KEY as string;
@@ -25,14 +26,15 @@ const contractABI = [
 ];
 const dcaContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-function createCronJob(walletAddress: string, dayOfMonth: number) {
+function createCronJob(walletAddress: string, dayOfMonth: number, amount: string) {
   const cronExpression = `0 0 ${dayOfMonth} * *`;
 
   const job = cron.schedule(cronExpression, async () => {
     try {
       console.log(`Executing DCA order for wallet: ${walletAddress} on day ${dayOfMonth}`);
 
-      const usdcAmount = ethers.parseUnits("100", 6); // Example: 100 USDC
+      // Parse the amount to ensure correct precision
+      const usdcAmount = ethers.parseUnits(amount, 6); // Amount is provided as a string
       console.log(`Staking ${usdcAmount} USDC on behalf of ${walletAddress}`);
       const stakeTx = await dcaContract.stakeUSDCOnBehalf(walletAddress, usdcAmount);
       await stakeTx.wait();
@@ -62,10 +64,10 @@ function removeCronJob(walletAddress: string) {
 app.post(
   '/subscribe',
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { signature, walletAddress, dayOfMonth } = req.body;
+    const { signature, walletAddress, dayOfMonth, amount } = req.body;
 
-    if (!signature || !walletAddress || dayOfMonth == null) {
-      res.status(400).json({ message: 'Signature, wallet address, and day of month are required.' });
+    if (!signature || !walletAddress || dayOfMonth == null || !amount) {
+      res.status(400).json({ message: 'Signature, wallet address, day of month, and amount are required.' });
       return;
     }
 
@@ -83,13 +85,14 @@ app.post(
         return;
       }
 
-      dcaOrders.push({ walletAddress, dayOfMonth });
-      console.log('DCA order registered:', { walletAddress, dayOfMonth });
-      createCronJob(walletAddress, dayOfMonth);
+      // Save the DCA order with the custom amount
+      dcaOrders.push({ walletAddress, dayOfMonth, amount });
+      console.log('DCA order registered:', { walletAddress, dayOfMonth, amount });
+      createCronJob(walletAddress, dayOfMonth, amount);
 
       res.status(200).json({
         message: 'DCA order successfully registered.',
-        order: { walletAddress, dayOfMonth },
+        order: { walletAddress, dayOfMonth, amount },
       });
     } catch (error) {
       console.error('Error registering DCA order:', error);
