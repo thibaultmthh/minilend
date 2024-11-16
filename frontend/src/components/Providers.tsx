@@ -10,6 +10,7 @@ import { apolloClientClient } from "../config/apolloClients";
 import { ApolloProvider } from "@apollo/client";
 import { wagmiConfig } from "../config/wagmiConfig";
 import { Toaster } from "./ui/sonner";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 
 const queryClient = new QueryClient();
 
@@ -26,8 +27,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <DynamicWagmiConnector>
             <ApolloProvider client={apolloClientClient}>
-              <Toaster />
-              {children}
+              <RainbowKitProvider>
+                <Toaster />
+                {children}
+              </RainbowKitProvider>
             </ApolloProvider>
           </DynamicWagmiConnector>
         </QueryClientProvider>

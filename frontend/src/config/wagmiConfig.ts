@@ -1,7 +1,7 @@
 import { injectedWallet } from "@rainbow-me/rainbowkit/wallets";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import { http } from "viem";
-import { celo, celoAlfajores, flowMainnet, flowTestnet } from "viem/chains";
+import { celo, celoAlfajores } from "viem/chains";
 import { createConfig } from "wagmi";
 
 const connectors = connectorsForWallets(
@@ -18,13 +18,10 @@ const connectors = connectorsForWallets(
 );
 
 export const wagmiConfig = createConfig({
-  chains: [celo, celoAlfajores, flowTestnet, flowMainnet],
-  multiInjectedProviderDiscovery: false,
+  connectors,
+  chains: [celo, celoAlfajores],
   transports: {
     [celo.id]: http(),
-    [flowMainnet.id]: http(),
-    [flowTestnet.id]: http(),
     [celoAlfajores.id]: http(),
   },
-  connectors,
 });

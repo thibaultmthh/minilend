@@ -16,9 +16,22 @@ export default function ConnectButton() {
       // User is using MiniPay so hide connect wallet button.
       setHideConnectBtn(true);
 
-      connect({ connector: injected({ target: "metaMask" }) });
+      connect(
+        { connector: injected({ target: "metaMask" }) },
+        {
+          onError(error, variables, context) {
+            alert(error.message);
+          },
+          onSuccess(data, variables, context) {
+            alert("Connected");
+          },
+          onSettled(data, variables, context) {
+            alert("Settled");
+          },
+        }
+      );
     }
-  }, [connect, window.ethereum]);
+  }, [connect]);
 
   // const client = createWalletClient();
 
