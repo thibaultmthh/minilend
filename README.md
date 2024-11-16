@@ -1,4 +1,4 @@
-![logo](./doc/logo.png)
+![logo](./doc/tontine-logo.png)
 
 ## What is Tontine?
 
