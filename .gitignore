@@ -22,6 +22,7 @@ node_modules
 # production
 /build
 /backend/build
+/backend/dist
 
 # misc
 .DS_Store
@@ -44,7 +45,8 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+/backend/tsconfig.tsbuildinfo
+/backend/next-env.d.ts
 
 # backend-specific
 /backend/logs/
