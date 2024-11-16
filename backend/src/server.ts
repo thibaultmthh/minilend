@@ -14,17 +14,32 @@ app.get('/', (req: Request, res: Response) => {
 
 const dcaOrders: { walletAddress: string; dayOfMonth: number }[] = [];
 const cronJobs: { walletAddress: string; job: cron.ScheduledTask }[] = [];
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+const privateKey = process.env.DCA_PRIVATE_KEY as string;
+const signer = new ethers.Wallet(privateKey, provider);
+
+// Smart contract details
+const contractAddress = process.env.CONTRACT_ADDRESS as string;
+const contractABI = [
+  "function stakeUSDCOnBehalf(address beneficiary, uint256 amount) external"
+];
+const dcaContract = new ethers.Contract(contractAddress, contractABI, signer);
 
 function createCronJob(walletAddress: string, dayOfMonth: number) {
   const cronExpression = `0 0 ${dayOfMonth} * *`;
 
-  const job = cron.schedule(cronExpression, () => {
-    console.log(
-      `Executing DCA order for wallet: ${walletAddress} on day ${dayOfMonth}`
-    );
+  const job = cron.schedule(cronExpression, async () => {
+    try {
+      console.log(`Executing DCA order for wallet: ${walletAddress} on day ${dayOfMonth}`);
 
-    // Placeholder: Logic for executing the DCA order
-    // (e.g., interacting with a crypto exchange API)
+      const usdcAmount = ethers.parseUnits("100", 6); // Example: 100 USDC
+      console.log(`Staking ${usdcAmount} USDC on behalf of ${walletAddress}`);
+      const stakeTx = await dcaContract.stakeUSDCOnBehalf(walletAddress, usdcAmount);
+      await stakeTx.wait();
+      console.log(`Stake successful: ${stakeTx.hash}`);
+    } catch (error) {
+      console.error(`Error executing DCA for ${walletAddress}:`, error);
+    }
   });
 
   job.start();
