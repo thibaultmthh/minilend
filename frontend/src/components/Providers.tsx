@@ -11,13 +11,13 @@ import { ApolloProvider } from "@apollo/client";
 import { wagmiConfig } from "../config/wagmiConfig";
 import { Toaster } from "./ui/sonner";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { isMiniPay } from "../utils/isMiniPay";
+import { IS_MINI_PAY } from "../utils/constantes";
 
 const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   // If MiniPay is detected, render without Dynamic
-  if (isMiniPay()) {
+  if (IS_MINI_PAY) {
     return (
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
