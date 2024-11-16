@@ -2,7 +2,8 @@
 
 ## What is Tontine?
 
-Tontine is an application on MiniPay providing a new way of handling savings throught an incentivise pool, targeting emerging markets. It can also work with telegram miniapp. The App is deployed on the Celo blockhain.
+Tontine is an application on MiniPay providing a new way of handling savings throught an incentivise pool, targeting emerging markets. It can also work with telegram miniapp. 
+The App is deployed on the Celo blockhain.
 
 ## Why Tontine ?
 
@@ -29,6 +30,12 @@ Billions of people face these hard challenges and Tontine will enables them to e
 
 ![logo](./doc/archi-schema.jpg)
 
+The user can stake cUSD into a pool contract that will deposit into a lending protocol (usually fork of aave). The Pool will accrue interest until a draw has been made and a random staker of the pool will be chosen to receive the reward (it is a weekly draw for now). 
+
+At any point the user can unstake and use his cUSD to spend it, which means that the user never really "loses money" while having potential access to rewards.
+
+We also created a system that allows recurring (monthly for now) deposit into the pool for the user. This is done throught a backend that is allowed to send metaTransactions for the wallet.
+
 ## Technical Stack 
 
 - For Authentication we use Dynamic for embedded wallet and eoas
@@ -39,15 +46,10 @@ Billions of people face these hard challenges and Tontine will enables them to e
 - MiniPay site tester and Celo-Composer MiniPay template starter kit
 
 
-## Context
-
-This project was developed during the Devcon 2024 hackathon
-
-
 ## Sponsor Feedback
 
 The Graph:
-- Celo is not publishable as a public subgraph on theGraph (but you can deploy your own)
+- Celo is not publishable as a public subgraph on theGraph (but you can deploy your own graph)
 
 Dynamic:
 - Conflict between rainbowkit and dynamic 
@@ -56,6 +58,10 @@ Dynamic:
 
 Celo:
 - It would be nice to have the minipay app integrated with IOS, half of our team was not able to test it.
+
+## Context
+
+This project was developed during the Devcon 2024 hackathon
 
 
 
