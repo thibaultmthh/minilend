@@ -57,7 +57,7 @@ export default function ProfilePage() {
           ) : (
             [...(user.depositEvents || []), ...(user.withdrawEvents || []), ...(user.rewardEvents || [])]
               .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
-              .map((event, idx) => {
+              .map((event) => {
                 const isDeposit = "depositEvents" in user && user.depositEvents?.some((d) => d.id === event.id);
                 const isReward = "rewardEvents" in user && user.rewardEvents?.some((r) => r.id === event.id);
 
