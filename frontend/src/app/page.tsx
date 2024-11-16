@@ -67,6 +67,14 @@ export default function Home() {
 
   const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
 
+  // Calculer le total des récompenses distribuées
+  const totalRewardsDistributed = waves?.waves.reduce((total, wave) => {
+    if (wave.rewardsDistributed) {
+      return total + BigInt(wave.totalReward);
+    }
+    return total;
+  }, 0n);
+
   console.log({ totalStaked });
   // const account = useAccount();
 
@@ -93,6 +101,14 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
+        {/* Ajouter cette nouvelle section avant le Hero section */}
+        <div className="mb-8 text-center">
+          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 text-transparent bg-clip-text">
+            ${nFormatter(Number(bigIntToFormattedString(totalRewardsDistributed || 0n, ERC20_STABLE_DECIMALS)))}
+          </h1>
+          <p className="text-white/60 text-xl mt-2">Total Rewards Distributed</p>
+        </div>
+
         {/* Hero section */}
         <div className="space-y-1 mb-4">
           <h2 className="text-2xl md:text-3xl font-medium text-white/90">Earn money without any risk!</h2>
@@ -169,8 +185,8 @@ export default function Home() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Recent Winners</h3>
             <div className="space-y-2">
-              {waves?.waves
-                ?.sort((a, b) => Number(b.endedAt || Infinity) - Number(a.endedAt || Infinity))
+              {[...(waves?.waves || [])]
+                .sort((a, b) => Number(b.endedAt || Infinity) - Number(a.endedAt || Infinity))
                 .slice(0, 10)
                 .map((wave) => {
                   const isCurrentWave = !wave.rewardsDistributed;
@@ -198,7 +214,7 @@ export default function Home() {
                           <p className="font-mono text-sm">{wave.winners[0]?.user?.id}</p>
                         )}
                       </div>
-                      <p className={`font-medium blur-sm ${isCurrentWave ? "text-blue-400" : "text-emerald-400"}`}>
+                      <p className={`font-medium  ${isCurrentWave ? "text-blue-400 blur-sm" : "text-emerald-400"}`}>
                         {nFormatter(Number(rewardAmount))}$
                       </p>
                     </div>
