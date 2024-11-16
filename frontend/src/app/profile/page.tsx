@@ -36,19 +36,34 @@ export default function ProfilePage() {
           {
             label: "Total Deposited",
             value: user
-              ? `$${nFormatter(Number(bigIntToFormattedString(user.totalStake, ERC20_STABLE_DECIMALS)))}`
+              ? `$${nFormatter(
+                  Number(
+                    bigIntToFormattedString(
+                      user.totalStake,
+                      ERC20_STABLE_DECIMALS
+                    )
+                  )
+                )}`
               : "$0.00",
           },
           {
             label: "Total Won",
             value: user
-              ? `$${nFormatter(Number(bigIntToFormattedString(user.totalReward, ERC20_STABLE_DECIMALS)))}`
+              ? `$${nFormatter(
+                  Number(
+                    bigIntToFormattedString(
+                      user.totalReward,
+                      ERC20_STABLE_DECIMALS
+                    )
+                  )
+                )}`
               : "$0.00",
           },
-          { label: "YL Points", value: "0 YL" },
-          { label: "Win Rate", value: "0%" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-white/5 rounded-2xl p-4 border border-white/10">
+          <div
+            key={stat.label}
+            className="bg-white/5 rounded-2xl p-4 border border-white/10"
+          >
             <p className="text-sm text-white/60">{stat.label}</p>
             <p className="text-xl font-semibold">{stat.value}</p>
           </div>
@@ -66,11 +81,19 @@ export default function ProfilePage() {
           ) : !user ? (
             <div className="text-white/60">No transactions found</div>
           ) : (
-            [...(user.depositEvents || []), ...(user.withdrawEvents || []), ...(user.rewardEvents || [])]
+            [
+              ...(user.depositEvents || []),
+              ...(user.withdrawEvents || []),
+              ...(user.rewardEvents || []),
+            ]
               .sort((a, b) => Number(b.timestamp) - Number(a.timestamp))
               .map((event) => {
-                const isDeposit = "depositEvents" in user && user.depositEvents?.some((d) => d.id === event.id);
-                const isReward = "rewardEvents" in user && user.rewardEvents?.some((r) => r.id === event.id);
+                const isDeposit =
+                  "depositEvents" in user &&
+                  user.depositEvents?.some((d) => d.id === event.id);
+                const isReward =
+                  "rewardEvents" in user &&
+                  user.rewardEvents?.some((r) => r.id === event.id);
 
                 return (
                   <div
@@ -78,16 +101,31 @@ export default function ProfilePage() {
                     className="bg-white/5 rounded-xl p-4 border border-white/10 flex justify-between items-center"
                   >
                     <div>
-                      <p className="font-medium">{isDeposit ? "Deposit" : isReward ? "Win" : "Withdraw"}</p>
-                      <p className="text-sm text-white/60">{formatDate(Number(event.timestamp) * 1000)}</p>
+                      <p className="font-medium">
+                        {isDeposit ? "Deposit" : isReward ? "Win" : "Withdraw"}
+                      </p>
+                      <p className="text-sm text-white/60">
+                        {formatDate(Number(event.timestamp) * 1000)}
+                      </p>
                     </div>
                     <p
                       className={`font-medium ${
-                        isReward ? "text-emerald-400" : isDeposit ? "text-blue-400" : "text-red-400"
+                        isReward
+                          ? "text-emerald-400"
+                          : isDeposit
+                          ? "text-blue-400"
+                          : "text-red-400"
                       }`}
                     >
                       {isDeposit || isReward ? "+" : "-"}$
-                      {nFormatter(Number(bigIntToFormattedString(event.amount, ERC20_STABLE_DECIMALS)))}
+                      {nFormatter(
+                        Number(
+                          bigIntToFormattedString(
+                            event.amount,
+                            ERC20_STABLE_DECIMALS
+                          )
+                        )
+                      )}
                     </p>
                   </div>
                 );

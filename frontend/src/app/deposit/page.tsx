@@ -16,7 +16,10 @@ import { wagmiConfig } from "../../config/wagmiConfig";
 import { STABLE_STAKING_ABI } from "../../utils/STABLE_STAKING_ABI";
 import { nFormatter } from "../../utils/utils";
 import { useErc20TokenInfo } from "../../hooks/useErc20TokenInfo";
-import { bigIntToFormattedString, formattedStringToBigInt } from "../../utils/bigintUtils";
+import {
+  bigIntToFormattedString,
+  formattedStringToBigInt,
+} from "../../utils/bigintUtils";
 
 import useMyDeposit from "../../hooks/useMyDeposit";
 
@@ -51,7 +54,10 @@ export default function DepositPage() {
 
   useEffect(() => {
     if (userAddress) {
-      dcaService.getSubscription(userAddress).then(setCurrentDCA).catch(console.error);
+      dcaService
+        .getSubscription(userAddress)
+        .then(setCurrentDCA)
+        .catch(console.error);
     }
   }, [userAddress]);
 
@@ -132,7 +138,11 @@ export default function DepositPage() {
       }
 
       // Subscribe to DCA
-      await dcaService.subscribe(userAddress, dcaDay, bigIntToFormattedString(dcaAmount, ERC20_STABLE_DECIMALS));
+      await dcaService.subscribe(
+        userAddress,
+        dcaDay,
+        bigIntToFormattedString(dcaAmount, ERC20_STABLE_DECIMALS)
+      );
 
       // Refresh DCA subscription
       const subscription = await dcaService.getSubscription(userAddress);
@@ -171,8 +181,12 @@ export default function DepositPage() {
     <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
       {/* Header */}
       <div className="space-y-2 mb-8">
-        <h2 className="text-2xl md:text-3xl font-medium text-white/90">Deposit</h2>
-        <p className="text-base text-white/60">Deposit $ to start earning interest and win prizes</p>
+        <h2 className="text-2xl md:text-3xl font-medium text-white/90">
+          Deposit
+        </h2>
+        <p className="text-base text-white/60">
+          Deposit $ to start earning interest and win prizes
+        </p>
       </div>
 
       {/* Deposit Card - Updated */}
@@ -182,10 +196,24 @@ export default function DepositPage() {
             <span className="text-white/60">Amount</span>
             <div>
               <span className="text-sm text-white/60">
-                Balance: {nFormatter(Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)))} $
+                Balance:{" "}
+                {nFormatter(
+                  Number(
+                    bigIntToFormattedString(
+                      stableBalance || 0n,
+                      ERC20_STABLE_DECIMALS
+                    )
+                  )
+                )}{" "}
+                $
               </span>
               {IS_MINI_PAY &&
-                (Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)) || 0) < 1 && (
+                (Number(
+                  bigIntToFormattedString(
+                    stableBalance || 0n,
+                    ERC20_STABLE_DECIMALS
+                  )
+                ) || 0) < 1 && (
                   <a
                     href="https://minipay.opera.com/add_cash"
                     className="ml-2 text-sm text-blue-400 hover:text-blue-300"
@@ -204,13 +232,18 @@ export default function DepositPage() {
               min="0"
               step="any"
               placeholder="0.0"
-              value={bigIntToFormattedString(depositAmount, ERC20_STABLE_DECIMALS)}
+              value={bigIntToFormattedString(
+                depositAmount,
+                ERC20_STABLE_DECIMALS
+              )}
               onChange={(e) => {
                 const value = e.target.value;
                 if (value === "" || parseFloat(value) < 0) {
                   setDepositAmount(0n);
                 } else {
-                  setDepositAmount(formattedStringToBigInt(value, ERC20_STABLE_DECIMALS));
+                  setDepositAmount(
+                    formattedStringToBigInt(value, ERC20_STABLE_DECIMALS)
+                  );
                 }
               }}
               className="w-full bg-white/5 rounded-xl p-4 text-2xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -245,7 +278,12 @@ export default function DepositPage() {
           <div className="flex justify-between items-center">
             <span className="text-white/60">Your Current Deposit</span>
             <span className="text-xl font-medium">
-              {nFormatter(Number(bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)))} $
+              {nFormatter(
+                Number(
+                  bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)
+                )
+              )}{" "}
+              $
             </span>
           </div>
           <button
@@ -267,7 +305,11 @@ export default function DepositPage() {
               ).then(() => refetchAll());
             }}
           >
-            {!userAddress ? "Connect Wallet" : stackedBalance <= 0n ? "No value to withdraw" : "Withdraw $"}
+            {!userAddress
+              ? "Connect Wallet"
+              : stackedBalance <= 0n
+              ? "No value to withdraw"
+              : "Withdraw $"}
           </button>
         </div>
       </div>
@@ -276,10 +318,17 @@ export default function DepositPage() {
       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-medium text-white/90">Set up Monthly DCA</h3>
+            <h3 className="text-xl font-medium text-white/90">
+              Set up Monthly Automatic Recurring Deposit
+            </h3>
             {currentDCA && (
-              <Button variant="danger" size="sm" isLoading={isLoadingDCA} onClick={handleCancelDCA}>
-                Cancel DCA
+              <Button
+                variant="danger"
+                size="sm"
+                isLoading={isLoadingDCA}
+                onClick={handleCancelDCA}
+              >
+                Cancel Automatic Recurring Deposit
               </Button>
             )}
           </div>
@@ -287,7 +336,8 @@ export default function DepositPage() {
           {currentDCA ? (
             <div className="space-y-2">
               <p className="text-white/60">
-                Current DCA: ${currentDCA.amount} scheduled for day {currentDCA.dayOfMonth} of each month
+                Current Deposit Strategie: ${currentDCA.amount} scheduled for
+                day {currentDCA.dayOfMonth} of each month
               </p>
             </div>
           ) : (
@@ -300,13 +350,18 @@ export default function DepositPage() {
                     min="0"
                     step="any"
                     placeholder="0.0"
-                    value={bigIntToFormattedString(dcaAmount, ERC20_STABLE_DECIMALS)}
+                    value={bigIntToFormattedString(
+                      dcaAmount,
+                      ERC20_STABLE_DECIMALS
+                    )}
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value === "" || parseFloat(value) < 0) {
                         setDcaAmount(0n);
                       } else {
-                        setDcaAmount(formattedStringToBigInt(value, ERC20_STABLE_DECIMALS));
+                        setDcaAmount(
+                          formattedStringToBigInt(value, ERC20_STABLE_DECIMALS)
+                        );
                       }
                     }}
                     className="w-full bg-white/5 rounded-xl p-4 text-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -321,7 +376,11 @@ export default function DepositPage() {
                   min="1"
                   max="28"
                   value={dcaDay}
-                  onChange={(e) => setDcaDay(Math.min(28, Math.max(1, parseInt(e.target.value))))}
+                  onChange={(e) =>
+                    setDcaDay(
+                      Math.min(28, Math.max(1, parseInt(e.target.value)))
+                    )
+                  }
                   className="w-full bg-white/5 rounded-xl p-4 text-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -333,13 +392,22 @@ export default function DepositPage() {
                   min="1"
                   max="12"
                   value={dcaMonths}
-                  onChange={(e) => setDcaMonths(Math.min(12, Math.max(1, parseInt(e.target.value))))}
+                  onChange={(e) =>
+                    setDcaMonths(
+                      Math.min(12, Math.max(1, parseInt(e.target.value)))
+                    )
+                  }
                   className="w-full bg-white/5 rounded-xl p-4 text-xl font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
-              <Button onClick={handleDCASetup} disabled={dcaAmount <= 0} isLoading={isLoadingDCA} className="w-full">
-                Setup Monthly DCA
+              <Button
+                onClick={handleDCASetup}
+                disabled={dcaAmount <= 0}
+                isLoading={isLoadingDCA}
+                className="w-full"
+              >
+                Setup Monthly Automatic Recurring Deposit
               </Button>
             </>
           )}
