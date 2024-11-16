@@ -2,13 +2,12 @@
 
 ## What is Tontine?
 
-Tontine is a
+Tontine is an application on MiniPay providing a new way of handling savings throught an incentivise pool, targeting emerging markets. It can also work with telegram miniapp.
 
-## Why Storylus ?
+## Why Tontine ?
 
-There is no native way to access historical state on Ethereum in a trustless way.
-Over 19 million blocks written to Ethereum. Smart contracts can only access the latest 256 blocks representing ~50 minutes of data.
-‘Historical data’ refers to anything outside of the last 256 blocks.
+In emerging countries like south asia or africa, people are struggling to save money and are prone to gambling addiction. We leverage the concept of "tontine" (a community shared piggy bank concept that is used in the real world to help communities share their wealth and have access to more utilities)
+Billions of people face these hard challenges and Tontine will enables them to easily save money and benefit from the rewards.
 
 ## Deployed contracts
 
@@ -25,33 +24,6 @@ Over 19 million blocks written to Ethereum. Smart contracts can only access the 
 - [BackEnd](https://github.com/thibaultmthh/minilend/tree/main/backend)
 - [WebApp](https://tontine.money/)
 
-## Protocol Usage Demo
-
-The demo is a Capture the (nft) Flag
-The NFT is transferred only if an address proves on-chain that it has made more transactions than the current NFT owner during EthDenver
-More than 256 Blocks in the past
-
-- [Code](https://github.com/cometh-hq/optimistic-eth-history-prover/tree/main/demo)
-- [Live Demo](https://optimistic-eth-history-prover.vercel.app/)
-
-## How it works
-
-### Protocol overview
-
-![protocole-overview](./doc/protocole-overview.png)
-
-### 1- Push a L1 Block Header to l3 in a trustless way
-
-![l1bridge](./doc/l1bridge.png)
-
-### 2- Recursively prove previous blocks
-
-![HistoryProver](./doc/HistoryProver.png)
-
-### 3- All networks that have access to the L3 Rollup state can now attest the validity of a L1 block.
-
-![rollupL1History](./doc/rollupL1History.png)
-
 ## Context
 
-This project was developed during the EthDenver 2024 hackathon
+This project was developed during the Devcon 2024 hackathon
