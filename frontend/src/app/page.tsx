@@ -21,6 +21,36 @@ import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { getNextSaturdayDrawTime, getTimeRemaining } from "../utils/dateUtils";
+import Confetti from "react-confetti";
+import { useWindowSize } from "react-use";
+
+// Add new component for the winning modal
+function WinningModal({ amount, onClose }: { amount: string; onClose: () => void }) {
+  const { width, height } = useWindowSize();
+
+  return (
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+      <Confetti width={width} height={height} recycle={false} numberOfPieces={200} />
+      <div className="bg-gradient-to-br from-blue-950 to-indigo-950 p-8 rounded-2xl max-w-md w-full mx-4 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+          ✕
+        </button>
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl font-bold text-white">🎉 Congratulations! 🎉</h2>
+          <p className="text-xl text-white/90">You won</p>
+          <p className="text-4xl font-bold text-green-400">${amount}</p>
+          <p className="text-white/60">The reward has been added to your balance</p>
+          <button
+            onClick={onClose}
+            className="bg-blue-500 hover:bg-blue-600 transition-colors text-white px-6 py-3 rounded-xl font-medium"
+          >
+            Awesome!
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   // const { data: stats } = useQuery(STATS_QUERY);
@@ -32,6 +62,8 @@ export default function Home() {
     minutes: "00",
     seconds: "00",
   });
+  const [showWinningModal, setShowWinningModal] = useState(false);
+  const [recentWinAmount] = useState<string>("300");
 
   const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
 
@@ -48,8 +80,17 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setShowWinningModal(true);
+    }, 1000);
+  }, []);
+
   return (
     <main className="min-h-screen bg-black text-white">
+      {/* Show modal if there's a recent win */}
+      {showWinningModal && <WinningModal amount={recentWinAmount} onClose={() => setShowWinningModal(false)} />}
+
       {/* Main Content */}
       <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
         {/* Hero section */}
