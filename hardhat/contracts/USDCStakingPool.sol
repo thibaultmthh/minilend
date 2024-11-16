@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -121,5 +121,20 @@ contract USDCStakingPool {
         require(usdc.transfer(msg.sender, totalAmount), "Transfer failed");
 
         emit StakeAndRewardsWithdrawn(currentWave, msg.sender, totalAmount);
+    }
+
+    function stakeUSDCOnBehalf(address beneficiary, uint256 amount) external {
+        require(amount > 0, "Amount must be greater than 0");
+        require(beneficiary != address(0), "Invalid beneficiary address");
+        
+        require(usdc.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        
+        usdc.approve(address(lendingPlatform), amount);
+        lendingPlatform.deposit(address(usdc), amount, address(this), 0);
+
+        users[beneficiary].stake += amount;
+        totalStake += amount;
+
+         emit SuppliedToLendingPlatform(currentWave, beneficiary, amount);
     }
 }

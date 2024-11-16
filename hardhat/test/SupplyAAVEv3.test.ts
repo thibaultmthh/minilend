@@ -1,6 +1,5 @@
 import {
   HardhatEthersSigner,
-  USDCStakingPool,
 } from "@nomicfoundation/hardhat-ethers/signers";
 import { Contract } from "ethers";
 
@@ -11,8 +10,9 @@ import { ethers, network } from "hardhat";
 describe("USDC and AavePool Interaction", function () {
   let usdc: Contract, aavePool: Contract;
   let investor: HardhatEthersSigner;
-  let usdcStakingPool: USDCStakingPool;
+  let usdcStakingPool: Contract;
   let impersonatedSigner: HardhatEthersSigner;
+  let beneficiarySigner: HardhatEthersSigner;
 
   before(async function () {
     const accountToImpersonate = "0x8fdc8b871355529741073c083a1c8a6a71853ee0";
@@ -26,7 +26,9 @@ describe("USDC and AavePool Interaction", function () {
     // Obtain a signer for the impersonated account
     impersonatedSigner = await ethers.getSigner(accountToImpersonate);
     // Load the signers
-    investor = (await ethers.getSigners())[0];
+    const [_investor, _beneficiary] = await ethers.getSigners();
+    investor = _investor;
+    beneficiarySigner = _beneficiary;
 
     // Deploy the USDCStakingPool contract
     const USDCStakingPool = await ethers.getContractFactory(
@@ -59,33 +61,8 @@ describe("USDC and AavePool Interaction", function () {
     );
   });
 
-  it("Approves and Supplies USDC to AavePool", async function () {
-    const amountToSupply = ethers.parseUnits("5", 6); // Supplying 100 USDC
-    console.log(amountToSupply)
-    // Approve the Aave Lending Pool to spend our USDC
-    const approveTx = await usdc
-      .connect(impersonatedSigner)
-      .approve(aavePool.target, amountToSupply);
-
-    await approveTx.wait();
-
-    // Check approval (this step is optional, just to show how it can be done)
-    /* const allowance = await usdc.allowance(investor.address, aavePool.target);*/
-    //expect(allowance).to.equal(amountToSupply);
-    console.log(await usdc.balanceOf(impersonatedSigner.address));
-    // Supply USDC to Aave Lending Pool
-    // Aave's deposit function might require additional parameters such as `onBehalfOf` and `referralCode`.
-    // Ensure you're passing the correct arguments as per Aave's LendingPool contract.
-    const supplyTx = await aavePool
-      .connect(impersonatedSigner)
-      .supply(usdc.target, amountToSupply, impersonatedSigner.address, 0);
-
-    await supplyTx.wait();
-
-    // Optional: Add additional checks here to verify the supply was successful
-  });
   it("allows users to stake USDC", async function () {
-    const stakeAmount = ethers.parseUnits("5", 6); // 100 USDC
+    const stakeAmount = ethers.parseUnits("10", 18); // 100 USDC
     //approve usdc
     await usdc
       .connect(impersonatedSigner)
@@ -109,13 +86,87 @@ describe("USDC and AavePool Interaction", function () {
     expect(totalStake.toString()).to.equal(stakeAmount.toString());
 
     // Mine a few blocks to simulate time passing and generate rewards
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 10; i++) {
       await network.provider.send("evm_mine");
     }
+    // Test withdrawal functionality
+    const initialBalance = await usdc.balanceOf(impersonatedSigner.address);
+    await usdcStakingPool.connect(impersonatedSigner).withdrawStakeAndRewards();
+    
+    // Verify stake was reset to 0
+    const userInfoAfterWithdraw = await usdcStakingPool.users(impersonatedSigner.address);
+    expect(userInfoAfterWithdraw).to.equal(0);
 
-    // Check rewards after blocks have been mined
+    // Verify total stake was decreased
+    const totalStakeAfterWithdraw = await usdcStakingPool.totalStake();
+    expect(totalStakeAfterWithdraw).to.equal(0);
+
+    // Verify user received their USDC back plus any rewards
+    const finalBalance = await usdc.balanceOf(impersonatedSigner.address);
+    expect(finalBalance).to.be.gt(initialBalance);
+    // Check rewards after blocks have been mined 
     const rewardPool = await usdcStakingPool.connect(impersonatedSigner).calculateRewardPool();
     console.log("Reward pool after mining blocks:", rewardPool);
     expect(rewardPool).to.be.gt(0, "Should have accumulated some rewards");
+  });
+
+  it("allows staking on behalf of another user", async function () {
+    const stakeAmount = ethers.parseUnits("5", 18);
+    
+    // Use the beneficiarySigner we got in the setup
+    await usdc
+      .connect(impersonatedSigner)
+      .approve(usdcStakingPool.target, stakeAmount);
+
+    // Initial state checks
+    const initialBeneficiaryStake = await usdcStakingPool.users(beneficiarySigner.address);
+    const initialTotalStake = await usdcStakingPool.totalStake();
+
+    // Stake on behalf
+    await usdcStakingPool
+      .connect(impersonatedSigner)
+      .stakeUSDCOnBehalf(beneficiarySigner.address, stakeAmount);
+
+    // Verify the stake was recorded correctly for the beneficiary
+    const beneficiaryInfo = await usdcStakingPool.users(beneficiarySigner.address);
+    expect(beneficiaryInfo.toString()).to.equal(stakeAmount.toString());
+
+    // Verify total stake increased
+    const newTotalStake = await usdcStakingPool.totalStake();
+    expect(newTotalStake).to.equal(initialTotalStake + stakeAmount);
+
+    // Verify the beneficiary can withdraw their stake
+    await usdcStakingPool.connect(beneficiarySigner).withdrawStakeAndRewards();
+    
+    const finalBeneficiaryStake = await usdcStakingPool.users(beneficiarySigner.address);
+    expect(finalBeneficiaryStake).to.equal(0);
+  });
+
+  it("should fail when staking on behalf with zero amount", async function () {
+    await expect(
+      usdcStakingPool
+        .connect(impersonatedSigner)
+        .stakeUSDCOnBehalf(beneficiarySigner.address, 0)
+    ).to.be.revertedWith("Amount must be greater than 0");
+  });
+
+  it("should fail when staking on behalf with zero address", async function () {
+    const stakeAmount = ethers.parseUnits("5", 18);
+    
+    await expect(
+      usdcStakingPool
+        .connect(impersonatedSigner)
+        .stakeUSDCOnBehalf(ethers.ZeroAddress, stakeAmount)
+    ).to.be.revertedWith("Invalid beneficiary address");
+  });
+
+  it("should fail when staking on behalf without sufficient allowance", async function () {
+    const stakeAmount = ethers.parseUnits("1000000", 18); // Very large amount
+    
+    await expect(
+      usdcStakingPool
+        .connect(impersonatedSigner)
+        .stakeUSDCOnBehalf(beneficiarySigner.address, stakeAmount)
+    ).to.be.revertedWith("ERC20: insufficient allowance");
   });
 });

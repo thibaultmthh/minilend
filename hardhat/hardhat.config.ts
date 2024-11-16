@@ -1,8 +1,10 @@
 import { config as dotenvConfig } from 'dotenv';
 import { HardhatUserConfig } from 'hardhat/config';
 import '@nomicfoundation/hardhat-toolbox';
+import '@nomicfoundation/hardhat-ethers';
 import 'solidity-coverage';
 import 'hardhat-contract-sizer';
+import 'hardhat-gas-reporter';
 
 import '@openzeppelin/hardhat-upgrades';
 import './tasks';
@@ -20,7 +22,14 @@ function getWallet() {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: process.env.SOLC_VERSION || '0.8.27',
+    compilers: [
+      { version: "0.8.28" },
+      { version: "0.8.20" },
+      { version: "0.8.0" },
+      { version: "0.4.18" },
+      { version: "0.4.23" },
+      { version: "0.4.24" },
+    ],
     settings: {
       viaIR:
         (process.env.SOLIDITY_VIA_IR &&
@@ -52,16 +61,14 @@ const config: HardhatUserConfig = {
     strict: true,
   },
   gasReporter: {
-    enabled:
-      (process.env.REPORT_GAS &&
-        'true' === process.env.REPORT_GAS.toLowerCase()) ||
-      false,
+    enabled: true,
     coinmarketcap: process.env.COINMARKETCAP_API_KEY || '',
     gasPriceApi:
       process.env.GAS_PRICE_API ||
       'https://api.etherscan.io/api?module=proxy&action=eth_gasPrice',
     token: 'ETH',
     currency: 'USD',
+    gasPrice: 21,
   },
   networks: {
     hardhat: {
@@ -69,6 +76,11 @@ const config: HardhatUserConfig = {
         (process.env.ALLOW_UNLIMITED_CONTRACT_SIZE &&
           'true' === process.env.ALLOW_UNLIMITED_CONTRACT_SIZE.toLowerCase()) ||
         false,
+    },
+    celo: {
+      url: "https://forno.celo.org",
+      accounts: [process.env.PRIVATE_KEY || ""],
+      chainId: 42220,
     },
     custom: {
       url: process.env.CUSTOM_NETWORK_URL || '',
@@ -146,6 +158,7 @@ const config: HardhatUserConfig = {
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || '',
       sokol: process.env.BLOCKSCOUT_API_KEY || '',
       custom: process.env.CUSTOM_EXPLORER_API_KEY || '',
+      celo: "9ZYE3K9N2SZBH7GD71YJPBJCW7C4DKPTSI"
     },
     customChains: [
       {
@@ -160,6 +173,14 @@ const config: HardhatUserConfig = {
           browserURL: process.env.CUSTOM_NETWORK_BROWSER_URL || '',
         },
       },
+      {
+        network: "celo",
+        chainId: 42220,
+        urls: {
+          apiURL: "https://api.celoscan.io/api",
+          browserURL: "https://celoscan.io"
+        }
+      }
     ],
   },
   // Add this section:

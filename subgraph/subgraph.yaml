@@ -1,4 +1,6 @@
 specVersion: 0.0.4
+description: USDC Staking Pool Subgraph
+repository: https://github.com/your-username/usdc-staking-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -14,11 +16,18 @@ dataSources:
       apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
+        - ProtocolMetrics
         - User
         - Stake
+        - Withdraw
         - Wave
         - Winner
-        - ProtocolMetrics # Add ProtocolMetrics entity
+        - DepositEvent
+        - WithdrawEvent
+        - RewardEvent
+        - ReferralEvent
+        - WaveStartEvent
+        - WaveEndEvent
       abis:
         - name: USDCStaking
           file: ./abis/USDCStaking.json
@@ -33,6 +42,9 @@ dataSources:
           handler: handleRewardPool
         - event: WinnerSet(uint256,address,uint256)
           handler: handleWinnerSet
-        - event: Referred(address,address) # Add Referred event handler
+        - event: Referred(address,address)
           handler: handleReferred
       file: ./src/USDCStaking.ts
+features:
+  - nonFatalErrors
+  - grafting
