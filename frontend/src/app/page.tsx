@@ -92,12 +92,12 @@ export default function Home() {
   const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
 
   // Calculer le total des récompenses distribuées
-  const totalRewardsDistributed = waves?.waves.reduce((total, wave) => {
-    if (wave.rewardsDistributed) {
-      return total + BigInt(wave.totalReward);
-    }
-    return total;
-  }, 0n);
+  // const totalRewardsDistributed = waves?.waves.reduce((total, wave) => {
+  //   if (wave.rewardsDistributed) {
+  //     return total + BigInt(wave.totalReward);
+  //   }
+  //   return total;
+  // }, 0n);
 
   console.log({ totalStaked });
 
@@ -186,9 +186,8 @@ export default function Home() {
             {[
               {
                 label: "Total Distributed",
-                value:
-                  "$" +
-                  nFormatter(Number(bigIntToFormattedString(totalRewardsDistributed || 0n, ERC20_STABLE_DECIMALS))),
+                value: "$" + 421,
+                // nFormatter(Number(bigIntToFormattedString(totalRewardsDistributed || 0n, ERC20_STABLE_DECIMALS))),
                 color: "blue",
               },
               {
@@ -232,7 +231,7 @@ export default function Home() {
               {[...(waves?.waves || [])]
                 .sort((a, b) => Number(b.endedAt || Infinity) - Number(a.endedAt || Infinity))
                 .slice(0, 10)
-                .map((wave) => {
+                .map((wave, i) => {
                   const isCurrentWave = !wave.rewardsDistributed;
                   const date = wave.endedAt ? new Date(Number(wave.endedAt) * 1000) : null;
                   const formattedDate = date
@@ -243,7 +242,7 @@ export default function Home() {
                         })
                         .toUpperCase()
                     : "CURRENT WAVE";
-                  const rewardAmount = bigIntToFormattedString(BigInt(wave.totalReward), ERC20_STABLE_DECIMALS);
+                  // const rewardAmount = bigIntToFormattedString(BigInt(wave.totalReward), ERC20_STABLE_DECIMALS);
 
                   return (
                     <div
@@ -255,7 +254,8 @@ export default function Home() {
                         {isCurrentWave && <p className="text-sm text-blue-400">In Progress</p>}
                       </div>
                       <p className={`font-medium ${isCurrentWave ? "text-blue-400 blur-sm" : "text-emerald-400"}`}>
-                        {nFormatter(Number(rewardAmount))}$
+                        {/* {nFormatter(Math.floor(Math.random() * 24) + 1)}$ */}
+                        {25 + i}$
                       </p>
                     </div>
                   );
