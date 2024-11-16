@@ -44,10 +44,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <DynamicWagmiConnector>
             <ApolloProvider client={apolloClientClient}>
-              <RainbowKitProvider>
-                <Toaster />
-                {children}
-              </RainbowKitProvider>
+              <Toaster />
+              {children}
             </ApolloProvider>
           </DynamicWagmiConnector>
         </QueryClientProvider>
