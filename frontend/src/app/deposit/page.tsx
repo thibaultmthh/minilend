@@ -56,11 +56,9 @@ export default function DepositPage() {
   }, [userAddress]);
 
   const refetchAll = () => {
-    setTimeout(() => {
-      refetchBalance();
-      refetchAllowance();
-      refetchWaves();
-    }, 400);
+    refetchBalance();
+    refetchAllowance();
+    refetchWaves();
   };
 
   const handleDeposit = async () => {
@@ -172,35 +170,6 @@ export default function DepositPage() {
         <p className="text-base text-white/60">Deposit $ to start earning interest and win prizes</p>
       </div>
 
-      {/* Staked Amount & Actions */}
-      <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <span className="text-white/60">Your Current Deposit</span>
-            <span className="text-xl font-medium">
-              {nFormatter(Number(bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)))} $
-            </span>
-          </div>
-          <button
-            className="w-full bg-red-500/20 text-red-400 py-4 rounded-xl font-medium"
-            onClick={() => {
-              if (!userAddress) return alert("Please connect your wallet");
-
-              sendTxWithToasts(
-                writeContract(wagmiConfig, {
-                  address: STABLE_STAKING_CONTRACT,
-                  abi: STABLE_STAKING_ABI,
-                  functionName: "withdrawStakeAndRewards",
-                  feeCurrency: ERC20_STABLE_CONTRACT,
-                })
-              ).then(() => refetchAll());
-            }}
-          >
-            Withdraw $
-          </button>
-        </div>
-      </div>
-
       {/* Deposit Card - Updated */}
       <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
         <div className="space-y-4">
@@ -210,16 +179,17 @@ export default function DepositPage() {
               <span className="text-sm text-white/60">
                 Balance: {nFormatter(Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)))} $
               </span>
-              {IS_MINI_PAY && Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)) <= 1 && (
-                <a
-                  href="https://minipay.opera.com/add_cash"
-                  className="ml-2 text-sm text-blue-400 hover:text-blue-300"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Add funds
-                </a>
-              )}
+              {IS_MINI_PAY &&
+                (Number(bigIntToFormattedString(stableBalance || 0n, ERC20_STABLE_DECIMALS)) || 0) < 1 && (
+                  <a
+                    href="https://minipay.opera.com/add_cash"
+                    className="ml-2 text-sm text-blue-400 hover:text-blue-300"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Add funds
+                  </a>
+                )}
             </div>
           </div>
 
@@ -260,6 +230,39 @@ export default function DepositPage() {
               : (stableAllowance || 0n) < depositAmount
               ? "Approve"
               : "Deposit"}
+          </button>
+        </div>
+      </div>
+
+      {/* Staked Amount & Actions */}
+      <div className="bg-white/5 rounded-2xl p-6 border border-white/10 mb-8">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-white/60">Your Current Deposit</span>
+            <span className="text-xl font-medium">
+              {nFormatter(Number(bigIntToFormattedString(stackedBalance, ERC20_STABLE_DECIMALS)))} $
+            </span>
+          </div>
+          <button
+            disabled={!userAddress || stackedBalance <= 0n}
+            className="w-full bg-gray-500/20 text-gray-300 py-4 rounded-xl font-medium 
+              hover:bg-red-500/20 hover:text-red-400 transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-500/20 disabled:hover:text-gray-300"
+            onClick={() => {
+              if (!userAddress) return alert("Please connect your wallet");
+              if (stackedBalance <= 0n) return;
+
+              sendTxWithToasts(
+                writeContract(wagmiConfig, {
+                  address: STABLE_STAKING_CONTRACT,
+                  abi: STABLE_STAKING_ABI,
+                  functionName: "withdrawStakeAndRewards",
+                  feeCurrency: ERC20_STABLE_CONTRACT,
+                })
+              ).then(() => refetchAll());
+            }}
+          >
+            {!userAddress ? "Connect Wallet" : stackedBalance <= 0n ? "No value to withdraw" : "Withdraw $"}
           </button>
         </div>
       </div>
