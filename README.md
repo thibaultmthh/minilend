@@ -2,7 +2,7 @@
 
 ## What is Tontine?
 
-Tontine is an application on MiniPay providing a new way of handling savings throught an incentivise pool, targeting emerging markets. It can also work with telegram miniapp.
+Tontine is an application on MiniPay providing a new way of handling savings throught an incentivise pool, targeting emerging markets. It can also work with telegram miniapp. The App is deployed on the Celo blockhain
 
 ## Why Tontine ?
 
@@ -23,6 +23,20 @@ Billions of people face these hard challenges and Tontine will enables them to e
 - [FrontEnd](https://github.com/thibaultmthh/minilend/tree/main/frontend)
 - [BackEnd](https://github.com/thibaultmthh/minilend/tree/main/backend)
 - [WebApp](https://tontine.money/)
+
+
+## How it works
+
+
+
+## Technical Stack 
+
+- For Authentication we use Dynamic for embedded wallet and eoas
+- We use Next for the front end and Node/Express for the back
+- Hardhat for smart contracts deployments
+- Celo as blockchain infrastructure
+- Mini Pay and Telegram MiniApp for the app distribution
+
 
 ## Context
 
