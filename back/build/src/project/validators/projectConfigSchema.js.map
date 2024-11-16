@@ -1,0 +1,1 @@
+{"version":3,"file":"projectConfigSchema.js","sourceRoot":"","sources":["../../../../src/project/validators/projectConfigSchema.ts"],"names":[],"mappings":";;;;;;AAAA,8CAAqB;AAErB,oEAAgD;AAEnC,QAAA,6BAA6B,GAAG,aAAG,CAAC,MAAM,CAAC;IACtD,OAAO,EAAE,aAAG,CAAC,KAAK,EAAE,CAAC,KAAK,CAAC,oBAAe,CAAC,gBAAgB,EAAE,CAAC;CAC/D,CAAC,CAAA"}
