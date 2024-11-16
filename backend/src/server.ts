@@ -37,7 +37,7 @@ function createCronJob(walletAddress: string, dayOfMonth: number, amount: string
       console.log(`Executing DCA order for wallet: ${walletAddress} on day ${dayOfMonth}`);
 
       // Parse the amount to ensure correct precision
-      const usdcAmount = ethers.parseUnits(amount, 6); // Amount is provided as a string
+      const usdcAmount = ethers.parseUnits(amount, 18); // Amount is provided as a string
       console.log(`Staking ${usdcAmount} USDC on behalf of ${walletAddress}`);
       const stakeTx = await dcaContract.stakeUSDCOnBehalf(walletAddress, usdcAmount);
       await stakeTx.wait();
