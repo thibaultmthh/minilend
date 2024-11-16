@@ -2,21 +2,27 @@
 
 import { useEffect } from "react";
 
-import { useState } from "react";
 import { useConnect } from "wagmi";
 import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 
 import { injected } from "@wagmi/connectors";
+import { isMiniPay } from "../utils/isMiniPay";
 export default function ConnectButton() {
-  const [hideConnectBtn, setHideConnectBtn] = useState(false);
   const { connect } = useConnect();
 
   useEffect(() => {
-    if (window.ethereum && window.ethereum.isMiniPay) {
+    if (isMiniPay()) {
       // User is using MiniPay so hide connect wallet button.
-      setHideConnectBtn(true);
+
       function connectWallet() {
-        connect({ connector: injected({ target: "metaMask" }) });
+        connect(
+          { connector: injected({ target: "metaMask" }) },
+          {
+            onError(error) {
+              alert(error.message);
+            },
+          }
+        );
       }
       setTimeout(connectWallet, 1000);
     }
@@ -24,5 +30,5 @@ export default function ConnectButton() {
 
   // const client = createWalletClient();
 
-  return <div>{!hideConnectBtn && <DynamicWidget />}</div>;
+  return <div>{!isMiniPay && <DynamicWidget />}</div>;
 }

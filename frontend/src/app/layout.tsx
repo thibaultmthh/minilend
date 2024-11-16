@@ -1,8 +1,12 @@
+"use client";
 import localFont from "next/font/local";
 import "./globals.css";
-import Providers from "../components/Providers";
+import dynamic from "next/dynamic";
+
+const Providers = dynamic(() => import("../components/Providers"), { ssr: false });
+const ConnectButton = dynamic(() => import("../components/ConnectButton"), { ssr: false });
+
 import NavBar from "../components/NavBar";
-import ConnectButtonWrapper from "../components/ConnectButtonWrapper";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -15,7 +19,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -27,7 +31,7 @@ export default async function RootLayout({
           <nav className="fixed top-0 w-full bg-black/80 backdrop-blur-lg border-b border-white/10 z-50">
             <div className="flex justify-between items-center p-4 max-w-7xl mx-auto">
               <h1 className="text-xl font-bold text-white">🎲 YL</h1>
-              <ConnectButtonWrapper />
+              <ConnectButton />
             </div>
           </nav>
           <main className="min-h-screen bg-black text-white pt-8 pb-12">{children}</main>
