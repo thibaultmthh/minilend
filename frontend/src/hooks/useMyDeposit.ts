@@ -17,7 +17,7 @@ export default function useMyDeposit() {
     setTimeout(() => {
       refetch();
     }, 300);
-  });
+  }, []);
 
   return { stackedBalance, refetch };
 }
