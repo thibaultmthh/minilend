@@ -1,4 +1,5 @@
 export function nFormatter(num: number, digits = 2) {
+  num = num * 1000000;
   const isNegative = num < 0;
   const absNum = Math.abs(num);
 

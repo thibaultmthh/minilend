@@ -12,6 +12,11 @@ export default function ProfilePage() {
   const { data: userData, loading } = useUser(userAddress);
   const user = userData?.user;
 
+  const handleClearAcknowledgedWins = () => {
+    localStorage.removeItem("acknowledgedWins");
+    alert("Acknowledged wins cleared from local storage");
+  };
+
   return (
     <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
       {/* Profile Header */}
@@ -50,6 +55,8 @@ export default function ProfilePage() {
         ))}
       </div>
 
+      {/* Clear Acknowledged Wins Button */}
+
       {/* Transaction History */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Transaction History </h3>
@@ -87,6 +94,33 @@ export default function ProfilePage() {
               })
           )}
         </div>
+      </div>
+
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+
+      <div className="mb-8">
+        <button
+          onClick={handleClearAcknowledgedWins}
+          className="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-xl border border-red-500/20"
+        >
+          Clear Acknowledged Wins
+        </button>
       </div>
     </div>
   );

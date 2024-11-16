@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 // import { useQuery } from "@apollo/client";
 // import { gql } from "../__generated__";
 // import { useAccount } from "wagmi";
 import { ERC20_STABLE_DECIMALS } from "../utils/constantes";
 import { useWaves } from "../hooks/useWaves";
-import {  nFormatter } from "../utils/utils";
+import { nFormatter } from "../utils/utils";
 import { bigIntToFormattedString } from "../utils/bigintUtils";
 import useMyDeposit from "../hooks/useMyDeposit";
 import Link from "next/link";
@@ -23,6 +24,7 @@ import { useEffect, useState } from "react";
 import { getNextSaturdayDrawTime, getTimeRemaining } from "../utils/dateUtils";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
+import { useAccount } from "wagmi";
 
 // Add new component for the winning modal
 function WinningModal({ amount, onClose }: { amount: string; onClose: () => void }) {
@@ -53,8 +55,30 @@ function WinningModal({ amount, onClose }: { amount: string; onClose: () => void
 }
 
 export default function Home() {
+  // Add this new function at the beginning of the component
+  const checkAndMarkWin = (waves: any, address: string) => {
+    if (!address || !waves) return false;
+
+    console.log(address, waves);
+
+    const winningWave = waves.waves.find((wave: any) =>
+      wave.winners.some((winner: any) => winner.user.id.toLowerCase() === address.toLowerCase())
+    );
+
+    console.log({ winningWave });
+
+    if (!winningWave) return false;
+
+    const acknowledgedWins = JSON.parse(localStorage.getItem("acknowledgedWins") || "{}");
+    if (acknowledgedWins[address]?.includes(winningWave.id)) return false;
+
+    return true;
+  };
+
   // const { data: stats } = useQuery(STATS_QUERY);
   const { data: waves } = useWaves();
+  const { address } = useAccount();
+
   const { stackedBalance } = useMyDeposit();
   const [timeRemaining, setTimeRemaining] = useState({
     days: "00",
@@ -76,7 +100,6 @@ export default function Home() {
   }, 0n);
 
   console.log({ totalStaked });
-  // const account = useAccount();
 
   useEffect(() => {
     const nextDraw = getNextSaturdayDrawTime();
@@ -89,15 +112,36 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    setTimeout(() => {
-      setShowWinningModal(true);
-    }, 1000);
-  }, []);
+    console.log({ address, waves });
+    console.log("Address and Waves", address);
+
+    if (address && waves) {
+      const shouldShowModal = checkAndMarkWin(waves, address);
+      setShowWinningModal(shouldShowModal);
+    }
+  }, [waves, address]);
+
+  // Modify the modal close handler
+  const handleCloseModal = () => {
+    if (address && waves) {
+      const winningWave = waves.waves.find((wave: any) =>
+        wave.winners.some((winner: any) => winner.user.id.toLowerCase() === address.toLowerCase())
+      );
+
+      if (winningWave) {
+        const acknowledgedWins = JSON.parse(localStorage.getItem("acknowledgedWins") || "{}");
+        acknowledgedWins[address] = acknowledgedWins[address] || [];
+        acknowledgedWins[address].push(winningWave.id);
+        localStorage.setItem("acknowledgedWins", JSON.stringify(acknowledgedWins));
+      }
+    }
+    setShowWinningModal(false);
+  };
 
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Show modal if there's a recent win */}
-      {showWinningModal && <WinningModal amount={recentWinAmount} onClose={() => setShowWinningModal(false)} />}
+      {/* Update the WinningModal component call */}
+      {showWinningModal && <WinningModal amount={recentWinAmount} onClose={handleCloseModal} />}
 
       {/* Main Content */}
       <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
