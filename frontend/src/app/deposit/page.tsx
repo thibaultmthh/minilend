@@ -198,10 +198,13 @@ export default function DepositPage() {
             </span>
           </div>
           <button
-            className="w-full bg-red-500/20 text-red-400 py-4 rounded-xl font-medium"
+            disabled={!userAddress || stackedBalance <= 0n}
+            className="w-full bg-gray-500/20 text-gray-300 py-4 rounded-xl font-medium 
+              hover:bg-red-500/20 hover:text-red-400 transition-all duration-200
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-500/20 disabled:hover:text-gray-300"
             onClick={() => {
               if (!userAddress) return alert("Please connect your wallet");
-              if (stackedBalance <= 0n) return alert("No funds to withdraw");
+              if (stackedBalance <= 0n) return;
 
               sendTxWithToasts(
                 writeContract(wagmiConfig, {
@@ -213,7 +216,11 @@ export default function DepositPage() {
               ).then(() => refetchAll());
             }}
           >
-            Withdraw $
+            {!userAddress
+              ? "Connect Wallet"
+              : stackedBalance <= 0n
+              ? "No value to withdraw"
+              : "Withdraw $"}
           </button>
         </div>
       </div>

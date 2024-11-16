@@ -8,6 +8,7 @@ import { nFormatter } from "../utils/utils";
 import { bigIntToFormattedString } from "../utils/bigintUtils";
 import useMyDeposit from "../hooks/useMyDeposit";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // const STATS_QUERY = gql(`query GetStats{
 //     protocolMetrics(id: "protocolMetrics") {
@@ -32,6 +33,7 @@ export default function Home() {
     minutes: "00",
     seconds: "00",
   });
+  const { push } = useRouter();
 
   const totalStaked = waves?.waves[waves?.waves?.length - 1]?.totalStake;
 
@@ -53,41 +55,48 @@ export default function Home() {
       {/* Main Content */}
       <div className="pt-20 pb-24 px-4 max-w-7xl mx-auto">
         {/* Hero section */}
-        <div className="space-y-2 mb-8">
+        <div className="space-y-1 mb-4">
           <h2 className="text-2xl md:text-3xl font-medium text-white/90">
-            Earn money without the risk!
+            Earn money without any risk!
           </h2>
-          <p className="text-base text-white/60">
-            Deposit your money and get a chance to multiply your savings every
-            week!
+          <p className="text-base text-white/60 m-px">Save your money</p>
+          <p className="text-base text-white/60 m-px">Withdraw any time</p>
+          <p className="text-base text-white/60 m-px">
+            Multiply it. You just can't loose
           </p>
         </div>
 
         {/* Rest of the content (Stats, Cards, etc.) */}
         <div className="space-y-6">
           {/* Hero Stats */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-950 to-indigo-950 p-6">
-            <div className="absolute inset-0 bg-grid-white/[0.02]" />
-            <p className="text-sm text-white/60">Tontine total value</p>
+          <div className="rounded-3xl bg-gradient-to-br from-blue-950 to-indigo-950 p-6">
+            <div className="relative z-0">
+              <div className="absolute inset-0 bg-grid-white/[0.02]" />
+            </div>
 
-            <h2 className="text-3xl font-bold mb-6">
-              $
-              {nFormatter(
-                Number(
-                  bigIntToFormattedString(
-                    totalStaked || 1000000000000000000000000n,
-                    ERC20_STABLE_DECIMALS
+            <div className="relative z-10">
+              <p className="text-sm text-white/60">Tontine total value</p>
+
+              <h2 className="text-3xl font-bold mb-6">
+                $
+                {nFormatter(
+                  Number(
+                    bigIntToFormattedString(
+                      totalStaked || 0n,
+                      ERC20_STABLE_DECIMALS
+                    )
                   )
-                )
-              )}
-            </h2>
-            <div className="flex justify-between items-end">
-              <Link
-                href="/deposit"
-                className="bg-blue-500 text-white px-6 py-3 rounded-xl font-medium"
-              >
-                Deposit
-              </Link>
+                )}
+              </h2>
+
+              <div className="flex justify-between items-end">
+                <Link
+                  href="deposit"
+                  className="bg-blue-500 hover:bg-blue-600 transition-colors text-white px-6 py-3 rounded-xl font-medium"
+                >
+                  Deposit
+                </Link>
+              </div>
             </div>
           </div>
 
