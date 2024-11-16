@@ -48,6 +48,8 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  const counterValue = window.localStorage.getItem("counterValue");
+
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Main Content */}
@@ -59,6 +61,11 @@ export default function Home() {
           <p className="text-base text-white/60 m-px">Withdraw any time</p>
           <p className="text-base text-white/60 m-px">Multiply it. You just can&apos;t loose</p>
         </div>
+
+        {counterValue && <p className="text-base text-white/60 m-px">Counter value: {counterValue}</p>}
+        <button onClick={() => window.localStorage.setItem("counterValue", (Number(counterValue) + 1).toString())}>
+          Increment
+        </button>
 
         {/* Rest of the content (Stats, Cards, etc.) */}
         <div className="space-y-6">
