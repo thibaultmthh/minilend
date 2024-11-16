@@ -3,7 +3,6 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 interface ILendingPlatform {
     function deposit(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external;
@@ -59,7 +58,6 @@ contract USDCStakingPool {
     }
 
     function stakeUSDC(uint256 amount) external {
-        console.log(amount);
         require(usdc.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         
         lendingPlatform.deposit(address(usdc), amount, address(this), 0);
@@ -129,7 +127,7 @@ contract USDCStakingPool {
         
         require(usdc.transferFrom(beneficiary, address(this), amount), "Transfer failed");
         
-        usdc.approve(address(lendingPlatform), amount);
+
         lendingPlatform.deposit(address(usdc), amount, address(this), 0);
 
         users[beneficiary].stake += amount;
