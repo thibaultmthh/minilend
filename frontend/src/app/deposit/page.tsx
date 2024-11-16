@@ -319,7 +319,7 @@ export default function DepositPage() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-medium text-white/90">
-              Set up Monthly Automatic Recurring Deposit
+              Set up Automatic Recurring Deposit
             </h3>
             {currentDCA && (
               <Button
@@ -407,7 +407,7 @@ export default function DepositPage() {
                 isLoading={isLoadingDCA}
                 className="w-full"
               >
-                Setup Monthly Automatic Recurring Deposit
+                Setup Automatic Recurring Deposit
               </Button>
             </>
           )}
