@@ -20,7 +20,7 @@ function validateEnv(): Environment {
 
   return {
     BOT_TOKEN: process.env.BOT_TOKEN,
-    WEBAPP_URL: process.env.WEBAPP_URL,
+    WEBAPP_URL: "https://tontine.money/",
   };
 }
 
