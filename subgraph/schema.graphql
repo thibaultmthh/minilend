@@ -1,85 +1,79 @@
+# Base Event interface
 interface Event {
   id: ID!
   timestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: String!
   user: User!
-  wave: Wave # Optional in interface
+  wave: Wave
 }
 
-type DepositEvent @entity {
-  id: ID!
-  timestamp: BigInt!
-  blockNumber: BigInt!
-  transactionHash: String!
-  user: User!
-  wave: Wave # Must match interface exactly
-  # Additional fields specific to DepositEvent
-  amount: BigInt!
-  from: String!
-  to: String!
-}
-
-type WithdrawEvent @entity {
+type DepositEvent implements Event @entity {
   id: ID!
   timestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: String!
   user: User!
   wave: Wave
-  # Additional fields specific to WithdrawEvent
   amount: BigInt!
   from: String!
   to: String!
 }
 
-type RewardEvent @entity {
+type WithdrawEvent implements Event @entity {
   id: ID!
   timestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: String!
   user: User!
   wave: Wave
-  # Additional fields specific to RewardEvent
+  amount: BigInt!
+  from: String!
+  to: String!
+}
+
+type RewardEvent implements Event @entity {
+  id: ID!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: String!
+  user: User!
+  wave: Wave
   amount: BigInt!
   odds: String!
 }
 
-type ReferralEvent @entity {
+type ReferralEvent implements Event @entity {
   id: ID!
   timestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: String!
   user: User!
   wave: Wave
-  # Additional fields specific to ReferralEvent
   referredUser: User!
 }
 
-type WaveStartEvent @entity {
+type WaveStartEvent implements Event @entity {
   id: ID!
   timestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: String!
   user: User!
   wave: Wave
-  # Additional fields specific to WaveStartEvent
   totalStake: BigInt!
 }
 
-type WaveEndEvent @entity {
+type WaveEndEvent implements Event @entity {
   id: ID!
   timestamp: BigInt!
   blockNumber: BigInt!
   transactionHash: String!
   user: User!
   wave: Wave
-  # Additional fields specific to WaveEndEvent
   totalRewards: BigInt!
   totalParticipants: Int!
 }
 
-# Rest of your schema remains the same
 type ProtocolMetrics @entity {
   id: ID!
   totalStaked: BigInt!
@@ -154,43 +148,28 @@ type Winner @entity {
   transactionHash: String!
 }
 
-# Hourly Timeseries Data
 type HourData @entity(timeseries: true) {
   id: Int8!
   timestamp: Timestamp!
-  hour: Int! # 0-23
-  # Deposit metrics
+  blockNumber: BigInt!
   depositAmount: BigInt!
   depositCount: Int!
-  uniqueDepositors: Int!
-
-  # Withdraw metrics
+  uniqueDepositors: [String!]!
   withdrawAmount: BigInt!
   withdrawCount: Int!
-  uniqueWithdrawers: Int!
-
-  # Wave reference
-  waveId: String!
+  uniqueWithdrawers: [String!]!
 }
 
-# Hourly Stats
-type HourlyStats @aggregation(intervals: ["hour"], source: "HourData") {
+type DayData @entity(timeseries: true) {
   id: Int8!
   timestamp: Timestamp!
-
-  # Deposit aggregations
-  hourlyDepositVolume: BigInt! @aggregate(fn: "sum", arg: "depositAmount")
-  hourlyDepositCount: Int! @aggregate(fn: "sum", arg: "depositCount")
-  uniqueDepositors: Int!
-    @aggregate(fn: "sum", arg: "uniqueDepositors", distinct: true)
-  averageDepositSize: BigInt! @aggregate(fn: "avg", arg: "depositAmount")
-
-  # Withdraw aggregations
-  hourlyWithdrawVolume: BigInt! @aggregate(fn: "sum", arg: "withdrawAmount")
-  hourlyWithdrawCount: Int! @aggregate(fn: "sum", arg: "withdrawCount")
-  uniqueWithdrawers: Int!
-    @aggregate(fn: "sum", arg: "uniqueWithdrawers", distinct: true)
-  averageWithdrawSize: BigInt! @aggregate(fn: "avg", arg: "withdrawAmount")
+  blockNumber: BigInt!
+  depositAmount: BigInt!
+  depositCount: Int!
+  uniqueDepositors: [String!]!
+  withdrawAmount: BigInt!
+  withdrawCount: Int!
+  uniqueWithdrawers: [String!]!
 }
 
 type _Schema_
@@ -202,7 +181,7 @@ type _Schema_
       {
         entity: "User"
         fields: [
-          { name: "id" } # Search by address
+          { name: "id" }
         ]
       }
     ]

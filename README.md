@@ -24,6 +24,7 @@ Billions of people face these hard challenges and Tontine will enables them to e
 - [FrontEnd](https://github.com/thibaultmthh/minilend/tree/main/frontend)
 - [BackEnd](https://github.com/thibaultmthh/minilend/tree/main/backend)
 - [WebApp](https://tontine.money/)
+- [MiniPayLink](https://minipay.tontine.money)
 
 
 ## How it works

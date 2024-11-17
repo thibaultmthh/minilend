@@ -1,12 +1,11 @@
-specVersion: 1.0.0
+specVersion: 1.1.0
 description: USDC Staking Pool Subgraph
 repository: https://github.com/your-username/usdc-staking-subgraph
 schema:
   file: ./schema.graphql
 features:
-  - nonFatalErrors
-  - grafting
-  - aggregations
+  - nonDeterministicIpfs
+  - fullTextSearch
 dataSources:
   - kind: ethereum
     name: USDCStaking
@@ -20,10 +19,7 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - ProtocolDayData
-        - WaveDayData
-        - UserDayData
-        - WeeklyRewardData
+        - ProtocolMetrics
         - User
         - Stake
         - Withdraw
@@ -35,6 +31,8 @@ dataSources:
         - ReferralEvent
         - WaveStartEvent
         - WaveEndEvent
+        - HourData
+        - DayData
       abis:
         - name: USDCStaking
           file: ./abis/USDCStaking.json
