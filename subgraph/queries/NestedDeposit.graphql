@@ -1,0 +1,21 @@
+query GetDepositFromWaveWithDepositBiggerThanAndListThem {
+      waves(
+        where: {
+          depositEvents_: {
+            amount_gt: "1"
+          }}
+      ) {
+        id
+        totalStake
+        depositEvents(
+          where: { amount_gt: "1" }
+        ) {
+          amount
+          user {
+            id
+            totalStake
+          }
+          timestamp
+        }
+      }
+    }

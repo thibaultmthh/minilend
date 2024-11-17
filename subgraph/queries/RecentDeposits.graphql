@@ -1,0 +1,12 @@
+ query GetRecentDeposits {
+      depositEvents(first: 10, orderBy: timestamp, orderDirection: desc) {
+        amount
+        timestamp
+        user {
+          id
+        }
+        wave {
+          id
+        }
+      }
+    }

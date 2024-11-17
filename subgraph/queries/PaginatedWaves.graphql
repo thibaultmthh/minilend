@@ -1,0 +1,13 @@
+query PaginatedWaves {
+  waves(
+    first: 1000,  # Large list
+    skip: 0,      # Modify this value for subsequent pages
+    orderBy: startedAt,
+    orderDirection: desc
+  ) {
+    id
+    totalStake
+    totalReward
+    startedAt
+  }
+}

@@ -1,0 +1,22 @@
+query DepositAnalysis($minAmount: BigInt!, $afterTimestamp: BigInt!) {
+      depositEvents(
+        where: {
+          and: [
+            { amount_gt: $minAmount },
+            { timestamp_gt: $afterTimestamp },
+            { wave_: { rewardsDistributed: false } }
+          ]
+        }
+      ) {
+        amount
+        timestamp
+        user {
+          id
+          totalStake
+        }
+        wave {
+          id
+          totalStake
+        }
+      }
+    }
